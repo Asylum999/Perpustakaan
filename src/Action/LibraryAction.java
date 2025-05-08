@@ -8,9 +8,9 @@ public class LibraryAction implements LibraryInterface {
     private List<BorrowRecord> history = new ArrayList<>();
 
     public LibraryAction() {
-        books.put("laskar pelangi", new BookBase("Laskar Pelangi", "Andrea Hirata", 2));
-        books.put("bumi", new BookBase("Bumi", "Tere Liye", 1));
-        books.put("negeri 5 menara", new BookBase("Negeri 5 Menara", "Ahmad Fuadi", 3));
+        books.put("goodnight pun-pun", new BookBase("Goodnight Pun-Pun", "Inio Asano", 2));
+        books.put("Scheduled suicide day", new BookBase("Scheduled Suicide Day", "Rikako Akiyoshi", 1));
+        books.put("happiness", new BookBase("Happiness", "Shuzo Oshimi", 3));
     }
 
     private String normalizeTitle(String title) {

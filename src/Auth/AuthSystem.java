@@ -8,10 +8,9 @@ public class AuthSystem {
     private List<Admin> admins = new ArrayList<>();
 
     public AuthSystem() {
-        // Single student
         student = new User("024", "dian");
 
-        admins.add(new Admin("admin1", "pass123"));
+        admins.add(new Admin("admin1", "123"));
     }
 
     public User login(String id, String nameOrPassword, boolean isAdmin) {
