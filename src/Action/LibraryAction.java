@@ -11,6 +11,8 @@ public class LibraryAction implements LibraryInterface {
         books.put("goodnight pun-pun", new BookBase("Goodnight Pun-Pun", "Inio Asano", 2));
         books.put("Scheduled suicide day", new BookBase("Scheduled Suicide Day", "Rikako Akiyoshi", 1));
         books.put("happiness", new BookBase("Happiness", "Shuzo Oshimi", 3));
+        books.put("blood on tracks", new BookBase("Blood on the Tracks", "Oshimi Shuuzou", 2));
+        books.put("20th century boys", new BookBase("20th Century Boys", "Urasawa Naoki", 4));
     }
 
     private String normalizeTitle(String title) {
