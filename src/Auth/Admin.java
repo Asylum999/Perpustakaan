@@ -1,4 +1,3 @@
-////Admin
 package Auth;
 
 public class Admin extends User {

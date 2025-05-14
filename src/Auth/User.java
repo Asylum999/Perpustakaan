@@ -1,4 +1,3 @@
-////User
 package Auth;
 
 public class User {
