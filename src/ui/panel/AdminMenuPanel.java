@@ -8,13 +8,10 @@ import java.awt.*;
 
 public class AdminMenuPanel extends JPanel {
     private final LibraryInterface lib;
-    private final User user;
     private final JTextArea bookArea;
 
     public AdminMenuPanel(LibraryInterface lib, User user) {
         this.lib = lib;
-        this.user = user;
-
         setLayout(new BorderLayout(0, 0));
         setBackground(new Color(255, 251, 240));
         Color brown = new Color(120, 80, 40);
