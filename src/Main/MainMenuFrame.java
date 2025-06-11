@@ -15,6 +15,13 @@ public class MainMenuFrame extends JFrame {
         setSize(820, 600);
         setLocationRelativeTo(null);
 
+        // Fullscreen benar-benar penuh
+        setUndecorated(true);
+        setResizable(false);
+        GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        Rectangle bounds = env.getMaximumWindowBounds();
+        setBounds(0, 0, bounds.width, bounds.height);
+
         // Tambahkan panel utama dari package ui
         setContentPane(new MainMenuPanel(lib, user));
         setVisible(true);
