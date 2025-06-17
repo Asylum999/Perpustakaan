@@ -1,0 +1,124 @@
+package com.library.View.Login;
+
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.scene.text.Text;
+
+public class RegisterPanel extends BorderPane {
+    private TextField nameField, studentIdField, facultyField, majorField, emailField;
+    private Button registerButton;
+
+    public RegisterPanel() {
+        // Left Side - Logo and Title
+        VBox leftPane = new VBox(10);
+        leftPane.setStyle("-fx-background-color: #800000;"); // warna maroon
+        leftPane.setAlignment(Pos.CENTER);
+        leftPane.setPadding(new Insets(20));
+
+        ImageView logo = new ImageView(new Image(getClass().getResource("/images/umm-logo.png").toExternalForm()));
+        logo.setFitWidth(200);
+        logo.setPreserveRatio(true);
+
+        Label ummLabel = new Label("UMM");
+        ummLabel.setStyle("-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold");
+
+        Label libraryLabel = new Label("LIBRARY");
+        libraryLabel.setStyle("-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold");
+
+        leftPane.getChildren().addAll(logo, ummLabel, libraryLabel);
+
+        // Right Side - Register Form
+        VBox registerForm = new VBox(10);
+        registerForm.setPadding(new Insets(40));
+        registerForm.setAlignment(Pos.CENTER_LEFT);
+        registerForm.setFillWidth(false);
+        registerForm.setStyle("-fx-background-color: #FFFFFF;");
+
+        Text registerTitle = new Text("REGISTER");
+        registerTitle.setStyle("-fx-text-fill: #0a0a0a; -fx-font-size: 40px; -fx-font-family: 'Georgia'; -fx-font-weight: bold;");
+
+        Label nameLabel = new Label("Name :");
+        nameLabel.setStyle("-fx-text-fill: #0a0a0a; -fx-font-size: 15px; -fx-font-family: 'Georgia'; -fx-font-weight: bold;");
+        nameField = new TextField();
+        nameField.setPrefWidth(400);
+        nameField.setPrefHeight(25);
+        nameField.setStyle("-fx-background-color: #ffffff  ; " + "-fx-border-color: #fa1e1e;" + "-fx-background-radius: 10;" + "-fx-border-radius: 10;");
+
+        Label studentIdLabel = new Label("Student ID :");
+        studentIdLabel.setStyle("-fx-text-fill: #0a0a0a; -fx-font-size: 15px; -fx-font-family: 'Georgia'; -fx-font-weight: bold;");
+        studentIdField = new TextField();
+        studentIdField.setPrefWidth(400);
+        studentIdField.setPrefHeight(25);
+        studentIdField.setStyle("-fx-background-color: #ffffff  ; " + "-fx-border-color: #fa1e1e;" + "-fx-background-radius: 10;" + "-fx-border-radius: 10;");
+
+        HBox facultyMajorBox = new HBox(10);
+        VBox facultyBox = new VBox(5);
+        VBox majorBox = new VBox(5);
+
+        Label facultyLabel = new Label("Faculty :");
+        facultyLabel.setStyle("-fx-text-fill: #0a0a0a; -fx-font-size: 15px; -fx-font-family: 'Georgia'; -fx-font-weight: bold;");
+        facultyField = new TextField();
+        facultyField.setPrefWidth(195);
+        facultyField.setPrefHeight(25);
+        facultyField.setStyle("-fx-background-color: #ffffff  ; " + "-fx-border-color: #fa1e1e;" + "-fx-background-radius: 10;" + "-fx-border-radius: 10;");
+
+        Label majorLabel = new Label("Major :");
+        majorLabel.setStyle("-fx-text-fill: #0a0a0a; -fx-font-size: 15px; -fx-font-family: 'Georgia'; -fx-font-weight: bold;");
+        majorField = new TextField();
+        majorField.setPrefWidth(195);
+        majorField.setPrefHeight(25);
+        majorField.setStyle("-fx-background-color: #ffffff  ; " + "-fx-border-color: #fa1e1e;" + "-fx-background-radius: 10;" + "-fx-border-radius: 10;");
+
+        facultyBox.getChildren().addAll(facultyLabel, facultyField);
+        majorBox.getChildren().addAll(majorLabel, majorField);
+        facultyMajorBox.getChildren().addAll(facultyBox, majorBox);
+
+        Label emailLabel = new Label("Email :");
+        emailLabel.setStyle("-fx-text-fill: #0a0a0a; -fx-font-size: 15px; -fx-font-family: 'Georgia'; -fx-font-weight: bold;");
+        emailField = new TextField();
+        emailField.setPrefWidth(400);
+        emailField.setPrefHeight(25);
+        emailField.setStyle("-fx-background-color: #ffffff  ; " + "-fx-border-color: #fa1e1e;" + "-fx-background-radius: 10;" + "-fx-border-radius: 10;");
+
+        registerButton = new Button("Register");
+        registerButton.setPrefWidth(150);
+        registerButton.setStyle("-fx-background-color: #800000; -fx-text-fill: white; -fx-font-size: 15px; -fx-background-radius: 10px; -fx-border-radius: 10px;");
+
+        registerForm.getChildren().addAll(registerTitle, nameLabel, nameField,
+                studentIdLabel, studentIdField,
+                facultyMajorBox, emailLabel, emailField,
+                registerButton);
+
+        this.setLeft(leftPane);
+        this.setCenter(registerForm);
+    }
+
+    public TextField getNameField() {
+        return nameField;
+    }
+
+    public TextField getStudentIdField() {
+        return studentIdField;
+    }
+
+    public TextField getFacultyField() {
+        return facultyField;
+    }
+
+    public TextField getMajorField() {
+        return majorField;
+    }
+
+    public TextField getEmailField() {
+        return emailField;
+    }
+
+    public Button getRegisterButton() {
+        return registerButton;
+    }
+}
+
