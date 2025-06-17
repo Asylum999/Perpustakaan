@@ -8,7 +8,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 
-
 public class LoginPanel extends BorderPane {
     public TextField usernameField;
     public PasswordField passwordField;
