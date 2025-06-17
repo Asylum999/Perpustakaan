@@ -11,6 +11,7 @@ import javafx.scene.text.Text;
 public class RegisterPanel extends BorderPane {
     private TextField nameField, studentIdField, facultyField, majorField, emailField;
     private Button registerButton;
+    public Hyperlink backtoLogin;
 
     public RegisterPanel() {
         // Left Side - Logo and Title
@@ -18,16 +19,18 @@ public class RegisterPanel extends BorderPane {
         leftPane.setStyle("-fx-background-color: #800000;"); // warna maroon
         leftPane.setAlignment(Pos.CENTER);
         leftPane.setPadding(new Insets(20));
+        leftPane.setPrefWidth(500);
 
         ImageView logo = new ImageView(new Image(getClass().getResource("/images/umm-logo.png").toExternalForm()));
-        logo.setFitWidth(200);
+        logo.setFitWidth(300);
+        logo.setFitHeight(500);
         logo.setPreserveRatio(true);
 
         Label ummLabel = new Label("UMM");
-        ummLabel.setStyle("-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold");
+        ummLabel.setStyle("-fx-text-fill: white; -fx-font-size: 40px; -fx-font-weight: bold");
 
         Label libraryLabel = new Label("LIBRARY");
-        libraryLabel.setStyle("-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold");
+        libraryLabel.setStyle("-fx-text-fill: white; -fx-font-size: 40px; -fx-font-weight: bold");
 
         leftPane.getChildren().addAll(logo, ummLabel, libraryLabel);
 
@@ -88,10 +91,16 @@ public class RegisterPanel extends BorderPane {
         registerButton.setPrefWidth(150);
         registerButton.setStyle("-fx-background-color: #800000; -fx-text-fill: white; -fx-font-size: 15px; -fx-background-radius: 10px; -fx-border-radius: 10px;");
 
+        backtoLogin = new Hyperlink("Back to Login");
+        backtoLogin.setStyle("-fx-text-fill: #750205; -fx-font-weight: bold;");
+        Label newUserLabel = new Label("Already Have an Account? ");
+        newUserLabel.setStyle("-fx-text-fill: #575454; -fx-font-size: 15px;");
+        HBox registerRow = new HBox(newUserLabel, backtoLogin);
+
         registerForm.getChildren().addAll(registerTitle, nameLabel, nameField,
                 studentIdLabel, studentIdField,
                 facultyMajorBox, emailLabel, emailField,
-                registerButton);
+                registerButton,registerRow);
 
         this.setLeft(leftPane);
         this.setCenter(registerForm);

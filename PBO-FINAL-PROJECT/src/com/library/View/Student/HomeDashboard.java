@@ -10,6 +10,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class HomeDashboard extends BorderPane {
     public HomeDashboard(String nama) {
         // === Sidebar ===
@@ -40,15 +43,12 @@ public class HomeDashboard extends BorderPane {
         String[] menuItems = {"Home", "Search Book", "Borrowing History", "Notifications", "Profile", "Logout"};
         String[] menuIcons = {"/images/Home.png", "/images/Search.png", "/images/Borrowinghistory.png", "/images/Notifications.png", "/images/Profile.png", "/images/Logout.png"};
 
+        List<HBox> allMenuItems = new ArrayList<>(); // simpan semua item
+
         for (int i = 0; i < menuItems.length; i++) {
             HBox menuItem = new HBox(15);
             menuItem.setPadding(new Insets(12, 20, 12, 20));
             menuItem.setAlignment(Pos.CENTER_LEFT);
-
-            // Highlight Home menu item
-            if (menuItems[i].equals("Home")) {
-                menuItem.setStyle("-fx-background-color: rgba(255,255,255,0.1);");
-            }
 
             ImageView icon = new ImageView(new Image(getClass().getResource(menuIcons[i]).toExternalForm()));
             icon.setFitWidth(20);
@@ -61,7 +61,22 @@ public class HomeDashboard extends BorderPane {
 
             menuItem.getChildren().addAll(icon, menu);
             menuBox.getChildren().add(menuItem);
+            allMenuItems.add(menuItem);
+
+            // Tambahkan event handler agar item bisa aktif
+            menuItem.setOnMouseClicked(event -> {
+                for (HBox item : allMenuItems) {
+                    item.setStyle(""); // hapus style dari semua item
+                }
+                menuItem.setStyle("-fx-background-color: rgba(255,255,255,0.1);"); // highlight item yang diklik
+            });
+
+            // Highlight default untuk "Home"
+            if (menuItems[i].equals("Home")) {
+                menuItem.setStyle("-fx-background-color: rgba(255,255,255,0.1);");
+            }
         }
+
 
         sidebar.getChildren().addAll(headerSection, menuBox);
 

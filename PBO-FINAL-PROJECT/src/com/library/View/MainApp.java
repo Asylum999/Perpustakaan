@@ -1,35 +1,26 @@
 package com.library.View;
 
-import com.library.View.Login.LoginPanel;
-import com.library.View.Login.RegisterPanel;
-import com.library.View.Student.*;
+import com.library.Controller.AuthController;
 import javafx.application.Application;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-
 
 public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) {
-        HomeDashboard homeDashboard = new HomeDashboard("farrel");
-        LoginPanel loginPanel = new LoginPanel();
-        RegisterPanel registerPanel = new RegisterPanel();
-        SearchBookCatalog searchBookCatalog = new SearchBookCatalog();
-        BorrowingHistory borrowingHistory = new BorrowingHistory();
-        Notifications notifications = new Notifications();
-        Profile profile = new Profile();
+        // Initialize the authentication controller with the primary stage
+        new AuthController(primaryStage);
 
-        Scene scene = new Scene(profile,800,600);
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("Home Dashboard");
-        primaryStage.setMaximized(true);
+        // Set application window properties
+        primaryStage.setMinWidth(1000);
+        primaryStage.setMinHeight(600);
+        primaryStage.setTitle("UMM Library Management System");
+
+        // Show the stage
         primaryStage.show();
-
     }
 
-
     public static void main(String[] args) {
+        // Launch the JavaFX application
         launch(args);
     }
 }

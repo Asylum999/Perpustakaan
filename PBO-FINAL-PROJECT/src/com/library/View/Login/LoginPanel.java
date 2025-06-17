@@ -18,19 +18,21 @@ public class LoginPanel extends BorderPane {
     public LoginPanel() {
 
         VBox leftPane = new VBox(10);
-        leftPane.setStyle("-fx-background-color: #800000;"); // warna maroon
+        leftPane.setStyle("-fx-background-color: #800000;");
         leftPane.setAlignment(Pos.CENTER);
         leftPane.setPadding(new Insets(20));
+        leftPane.setPrefWidth(500);
 
         ImageView logo = new ImageView(new Image(getClass().getResource("/images/umm-logo.png").toExternalForm()));
-        logo.setFitWidth(200);
+        logo.setFitWidth(300);
+        logo.setFitHeight(500);
         logo.setPreserveRatio(true);
 
         Label ummLabel = new Label("UMM");
-        ummLabel.setStyle("-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold");
+        ummLabel.setStyle("-fx-text-fill: white; -fx-font-size: 40px; -fx-font-weight: bold");
 
         Label libraryLabel = new Label("LIBRARY");
-        libraryLabel.setStyle("-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold");
+        libraryLabel.setStyle("-fx-text-fill: white; -fx-font-size: 40px; -fx-font-weight: bold");
 
         leftPane.getChildren().addAll(logo, ummLabel, libraryLabel);
 
@@ -59,9 +61,10 @@ public class LoginPanel extends BorderPane {
         passwordField = new PasswordField();
         passwordField.setPrefWidth(400);
         passwordField.setPrefHeight(40);
-        passwordField.setStyle("-fx-background-color: #ffffff  ; " + "-fx-border-color: #fa1e1e;" + "-fx-background-radius: 10;" + "-fx-border-radius: 10;");
+        passwordField.setStyle("-fx-background-color: #ffffff; " + "-fx-border-color: #fa1e1e;" + "-fx-background-radius: 10;" + "-fx-border-radius: 10;");
 
         registerLink = new Hyperlink("Register Here");
+        registerLink.setStyle("-fx-text-fill: #750205; -fx-font-weight: bold;");
         Label newUserLabel = new Label("Are you new? ");
         newUserLabel.setStyle("-fx-text-fill: #575454; -fx-font-size: 15px;");
         HBox registerRow = new HBox(newUserLabel, registerLink);
@@ -70,7 +73,7 @@ public class LoginPanel extends BorderPane {
         loginButton.setPrefWidth(150);
         loginButton.setStyle("-fx-background-color: #800000; -fx-text-fill: white; -fx-font-size: 15px; -fx-background-radius: 10px; -fx-border-radius: 10px;");
 
-        loginForm.getChildren().addAll(loginTitle, infoText, usernameLabel, usernameField, passwordField, registerRow, loginButton);
+        loginForm.getChildren().addAll(loginTitle, infoText, usernameLabel, usernameField, passwordLabel, passwordField, registerRow, loginButton);
 
         this.setLeft(leftPane);
         this.setCenter(loginForm);
