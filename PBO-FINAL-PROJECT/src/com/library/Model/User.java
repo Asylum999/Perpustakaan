@@ -1,8 +1,8 @@
 package com.library.Model;
 
-public class User {
-    protected String username;
-    protected String id;
+public abstract class User {
+    private String username;
+    private String id;
 
     public User(String username, String id){
         this.username = username;
@@ -16,4 +16,19 @@ public class User {
     public String getId() {
         return id;
     }
+    public void setId(String id) {
+        this.id = id;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void login ( ){
+
+    }
+
+    public void displayinfo () {
+
+    }
+
 }
