@@ -1,7 +1,10 @@
 package com.library.View.Student;
 
+import com.library.Controller.Navigator;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -9,6 +12,9 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Notifications extends BorderPane {
 
@@ -41,36 +47,67 @@ public class Notifications extends BorderPane {
 
         headerSection.getChildren().addAll(logo, labelUMM);
 
-        VBox menuBox = new VBox(0);
-        menuBox.setPadding(new Insets(20, 0, 0, 0));
-
         String[] menuItems = {"Home", "Search Book", "Borrowing History", "Notifications", "Profile", "Logout"};
-        String[] menuIcons = {"/images/Home.png", "/images/Search.png", "/images/Borrowinghistory.png",
-                "/images/Notifications.png", "/images/Profile.png", "/images/Logout.png"};
+        String[] menuIcons = {"/images/Home.png", "/images/Search.png", "/images/Borrowinghistory.png", "/images/Notifications.png", "/images/Profile.png", "/images/Logout.png"};
+
+        List<Button> allMenuButtons = new ArrayList<>();
+
+        VBox menuBox = new VBox();
+        menuBox.setPadding(new Insets(10, 0, 0, 0));
+        menuBox.setSpacing(5);
+        sidebar.getChildren().addAll(headerSection, menuBox);
 
         for (int i = 0; i < menuItems.length; i++) {
-            HBox menuItem = new HBox(15);
-            menuItem.setPadding(new Insets(12, 20, 12, 20));
-            menuItem.setAlignment(Pos.CENTER_LEFT);
+            Button menuButton = new Button(menuItems[i]);
+            menuButton.setGraphic(new ImageView(new Image(getClass().getResource(menuIcons[i]).toExternalForm())));
+            menuButton.setContentDisplay(ContentDisplay.LEFT);
+            menuButton.setAlignment(Pos.CENTER_LEFT);
+            menuButton.setPadding(new Insets(10, 20, 10, 20));
+            menuButton.setMaxWidth(Double.MAX_VALUE);
+            menuButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;");
 
+            int index = i; // karena lambda butuh final atau effectively final
+            menuButton.setOnAction(e -> {
+                // Reset semua tombol ke style default
+                for (Button btn : allMenuButtons) {
+                    btn.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;");
+                }
+                // Highlight tombol yang diklik
+                menuButton.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14;");
+
+                // Aksi pindah halaman
+                switch (menuItems[index]) {
+                    case "Home":
+                        Navigator.showStudentDashboard("Nama Mahasiswa"); // ganti dengan variabel nama
+                        break;
+                    case "Search Book":
+                        Navigator.showSearchBook();
+                        break;
+                    case "Borrowing History":
+                        Navigator.showBorrowingHistory();
+                        break;
+                    case "Notifications":
+                        Navigator.showNotifications();
+                        break;
+                    case "Profile":
+                        Navigator.showProfile();
+                        break;
+                    case "Logout":
+                        Navigator.showLogin();
+                        break;
+                    default:
+                        System.out.println("Menu belum ditangani: " + menuItems[index]);
+                }
+            });
+
+            allMenuButtons.add(menuButton);
+            menuBox.getChildren().add(menuButton);
+
+            // Highlight default misalnya "Home"
             if (menuItems[i].equals("Notifications")) {
-                menuItem.setStyle("-fx-background-color: rgba(255,255,255,0.1);");
+                menuButton.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14;");
             }
-
-            ImageView icon = new ImageView(new Image(getClass().getResource(menuIcons[i]).toExternalForm()));
-            icon.setFitWidth(20);
-            icon.setFitHeight(20);
-            icon.setPreserveRatio(true);
-
-            Label menu = new Label(menuItems[i]);
-            menu.setTextFill(Color.WHITE);
-            menu.setFont(Font.font("Arial", 14));
-
-            menuItem.getChildren().addAll(icon, menu);
-            menuBox.getChildren().add(menuItem);
         }
-
-        sidebar.getChildren().addAll(headerSection, menuBox);
         return sidebar;
     }
 

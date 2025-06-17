@@ -11,8 +11,8 @@ public class MainApp extends Application {
         Navigator.showLogin();
 
         primaryStage.setTitle("Library System");
-        primaryStage.show();
         primaryStage.setMaximized(true);
+        primaryStage.show();
     }
 
     public static void main(String[] args) {

@@ -12,5 +12,18 @@ public class LoginController {
             // Tambahkan validasi login di sini
             System.out.println("Login clicked");
         });
+
+        view.getLoginButton().setOnAction(e -> {
+            String username = view.getUsernameField().getText();
+            String password = view.getPasswordField().getText();
+
+            // Contoh validasi sederhana
+            if (username.equals("student") && password.equals("123")) {
+                Navigator.showStudentDashboard(username); // Ganti dengan nama pengguna yang sebenarnya
+            } else {
+                System.out.println("Login gagal!");
+            }
+        });
     }
+
 }
