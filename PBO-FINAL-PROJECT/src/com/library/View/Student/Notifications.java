@@ -3,9 +3,7 @@ package com.library.View.Student;
 import com.library.Controller.Navigator;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -31,20 +29,19 @@ public class Notifications extends BorderPane {
         sidebar.setPrefWidth(200);
         sidebar.setStyle("-fx-background-color: #800000;");
 
-        VBox headerSection = new VBox(10);
+        // Header section with logo and title
+        VBox headerSection = new VBox(-20);
         headerSection.setPadding(new Insets(20));
         headerSection.setAlignment(Pos.CENTER);
-
-        ImageView logo = new ImageView(new Image(getClass().getResource("/images/umm-logo.png").toExternalForm()));
-        logo.setFitWidth(50);
+        ImageView logo = new ImageView(new Image(getClass().getResource("/images/LogoUmm.png").toExternalForm()));
+        logo.setFitWidth(150);
+        logo.setFitHeight(150);
         logo.setPreserveRatio(true);
-
-        Label labelUMM = new Label("UMM LIBRARY");
+        Label labelUMM = new Label("LIBRARY");
         labelUMM.setTextFill(Color.WHITE);
         labelUMM.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-        labelUMM.setWrapText(true);
         labelUMM.setAlignment(Pos.CENTER);
-
+        labelUMM.setWrapText(true);
         headerSection.getChildren().addAll(logo, labelUMM);
 
         String[] menuItems = {"Home", "Search Book", "Borrowing History", "Notifications", "Profile", "Logout"};
@@ -93,7 +90,16 @@ public class Notifications extends BorderPane {
                         Navigator.showProfile();
                         break;
                     case "Logout":
-                        Navigator.showLogin();
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                        alert.setTitle("Logout Confirmation");
+                        alert.setHeaderText("Do you really want to logout?");
+                        alert.setContentText("Press OK to proceed or Cancel to stay.");
+
+                        alert.showAndWait().ifPresent(response -> {
+                            if (response == ButtonType.OK) {
+                                Navigator.showLogin(); // back to login screen
+                            }
+                        });
                         break;
                     default:
                         System.out.println("Menu belum ditangani: " + menuItems[index]);
@@ -116,7 +122,7 @@ public class Notifications extends BorderPane {
         mainContent.setPadding(new Insets(40, 40, 40, 40));
         mainContent.setStyle("-fx-background-color: #f8f9fa;");
 
-        Label title = new Label("Notifications");
+        Label title = new Label("\uD83D\uDCAC Notifications");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 32));
         title.setTextFill(Color.web("#2c3e50"));
 

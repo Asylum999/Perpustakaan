@@ -3,9 +3,7 @@ package com.library.View.Student;
 import com.library.Controller.Navigator;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -24,13 +22,14 @@ public class HomeDashboard extends BorderPane {
         sidebar.setStyle("-fx-background-color: #800000;");
 
         // Header section with logo and title
-        VBox headerSection = new VBox(10);
+        VBox headerSection = new VBox(-20);
         headerSection.setPadding(new Insets(20));
         headerSection.setAlignment(Pos.CENTER);
-        ImageView logo = new ImageView(new Image(getClass().getResource("/images/umm-logo.png").toExternalForm()));
-        logo.setFitWidth(50);
+        ImageView logo = new ImageView(new Image(getClass().getResource("/images/LogoUmm.png").toExternalForm()));
+        logo.setFitWidth(150);
+        logo.setFitHeight(150);
         logo.setPreserveRatio(true);
-        Label labelUMM = new Label("UMM LIBRARY");
+        Label labelUMM = new Label("LIBRARY");
         labelUMM.setTextFill(Color.WHITE);
         labelUMM.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         labelUMM.setAlignment(Pos.CENTER);
@@ -84,7 +83,16 @@ public class HomeDashboard extends BorderPane {
                         Navigator.showProfile();
                         break;
                     case "Logout":
-                        Navigator.showLogin();
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                        alert.setTitle("Logout Confirmation");
+                        alert.setHeaderText("Do you really want to logout?");
+                        alert.setContentText("Press OK to proceed or Cancel to stay.");
+
+                        alert.showAndWait().ifPresent(response -> {
+                            if (response == ButtonType.OK) {
+                                Navigator.showLogin(); // back to login screen
+                            }
+                        });
                         break;
                     default:
                         System.out.println("Menu belum ditangani: " + menuItems[index]);
@@ -177,7 +185,7 @@ public class HomeDashboard extends BorderPane {
     private VBox createSummaryCard(String title, String iconPath, String value, String backgroundColor) {
         VBox card = new VBox(15);
         card.setPrefSize(180, 120);
-        card.setStyle("-fx-background-color: " + backgroundColor + "; -fx-background-radius: 12px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);");
+        card.setStyle("-fx-background-color: #750205 " + backgroundColor + "; -fx-background-radius: 12px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);");
         card.setAlignment(Pos.CENTER);
         card.setPadding(new Insets(20));
 

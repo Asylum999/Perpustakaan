@@ -52,15 +52,16 @@ public class BorrowingHistory extends BorderPane {
         sidebar.setStyle("-fx-background-color: #800000;");
 
         // Header section with logo and title
-        VBox headerSection = new VBox(10);
+        VBox headerSection = new VBox(-20);
         headerSection.setPadding(new Insets(20));
         headerSection.setAlignment(Pos.CENTER);
 
-        ImageView logo = new ImageView(new Image(getClass().getResource("/images/umm-logo.png").toExternalForm()));
-        logo.setFitWidth(50);
+        ImageView logo = new ImageView(new Image(getClass().getResource("/images/LogoUmm.png").toExternalForm()));
+        logo.setFitWidth(150);
+        logo.setFitHeight(150);
         logo.setPreserveRatio(true);
 
-        Label labelUMM = new Label("UMM LIBRARY");
+        Label labelUMM = new Label("LIBRARY");
         labelUMM.setTextFill(Color.WHITE);
         labelUMM.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         labelUMM.setAlignment(Pos.CENTER);
@@ -115,7 +116,16 @@ public class BorrowingHistory extends BorderPane {
                         Navigator.showProfile();
                         break;
                     case "Logout":
-                        Navigator.showLogin();
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                        alert.setTitle("Logout Confirmation");
+                        alert.setHeaderText("Do you really want to logout?");
+                        alert.setContentText("Press OK to proceed or Cancel to stay.");
+
+                        alert.showAndWait().ifPresent(response -> {
+                            if (response == ButtonType.OK) {
+                                Navigator.showLogin(); // back to login screen
+                            }
+                        });
                         break;
                     default:
                         System.out.println("Menu belum ditangani: " + menuItems[index]);
@@ -136,7 +146,7 @@ public class BorrowingHistory extends BorderPane {
     private VBox createSummaryBox() {
         VBox summaryBox = new VBox(15);
         summaryBox.setPadding(new Insets(20));
-        summaryBox.setStyle("-fx-background-color: #34495e; -fx-background-radius: 10px;");
+        summaryBox.setStyle("-fx-background-color: #750205; -fx-background-radius: 10px;");
         summaryBox.setPrefWidth(800);
 
         // Summary title

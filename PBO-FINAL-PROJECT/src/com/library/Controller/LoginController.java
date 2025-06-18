@@ -8,6 +8,7 @@ public class LoginController {
         this.view = view;
 
         view.getRegisterLink().setOnAction(e -> Navigator.showRegister());
+
         view.getLoginButton().setOnAction(e -> {
             // Tambahkan validasi login di sini
             System.out.println("Login clicked");
@@ -20,6 +21,8 @@ public class LoginController {
             // Contoh validasi sederhana
             if (username.equals("student") && password.equals("123")) {
                 Navigator.showStudentDashboard(username); // Ganti dengan nama pengguna yang sebenarnya
+            } else if (username.equals("admin") && password.equals("123")) {
+                Navigator.showAdminHomeDashboard("Admin");
             } else {
                 System.out.println("Login gagal!");
             }

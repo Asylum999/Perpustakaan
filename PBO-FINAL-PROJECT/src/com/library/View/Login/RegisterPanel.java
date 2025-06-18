@@ -14,26 +14,22 @@ public class RegisterPanel extends BorderPane {
     public Hyperlink backtoLogin;
 
     public RegisterPanel() {
-        // Left Side - Logo and Title
-        VBox leftPane = new VBox(10);
-        leftPane.setStyle("-fx-background-color: #800000;"); // warna maroon
+        //left side
+        VBox leftPane = new VBox(-30);
+        leftPane.setStyle("-fx-background-color: #800000;");
         leftPane.setAlignment(Pos.CENTER);
         leftPane.setPadding(new Insets(20));
         leftPane.setPrefWidth(500);
 
-        ImageView logo = new ImageView(new Image(getClass().getResource("/images/umm-logo.png").toExternalForm()));
-        logo.setFitWidth(300);
-        logo.setFitHeight(500);
+        ImageView logo = new ImageView(new Image(getClass().getResource("/images/LogoUmm.png").toExternalForm()));
+        logo.setFitWidth(250);
+        logo.setFitHeight(250);
         logo.setPreserveRatio(true);
 
-        Label ummLabel = new Label("UMM");
-        ummLabel.setStyle("-fx-text-fill: white; -fx-font-size: 40px; -fx-font-weight: bold");
-
         Label libraryLabel = new Label("LIBRARY");
-        libraryLabel.setStyle("-fx-text-fill: white; -fx-font-size: 40px; -fx-font-weight: bold");
+        libraryLabel.setStyle("-fx-text-fill: #ebeae8; -fx-font-size: 50px; -fx-font-weight: bold");
 
-        leftPane.getChildren().addAll(logo, ummLabel, libraryLabel);
-
+        leftPane.getChildren().addAll(logo, libraryLabel);
         // Right Side - Register Form
         VBox registerForm = new VBox(10);
         registerForm.setPadding(new Insets(40));
@@ -42,7 +38,7 @@ public class RegisterPanel extends BorderPane {
         registerForm.setStyle("-fx-background-color: #FFFFFF;");
 
         Text registerTitle = new Text("REGISTER");
-        registerTitle.setStyle("-fx-text-fill: #0a0a0a; -fx-font-size: 40px; -fx-font-family: 'Georgia'; -fx-font-weight: bold;");
+        registerTitle.setStyle("-fx-text-fill: #0a0a0a; -fx-font-size: 60px; -fx-font-family: 'Georgia'; -fx-font-weight: bold;");
 
         Label nameLabel = new Label("Name :");
         nameLabel.setStyle("-fx-text-fill: #0a0a0a; -fx-font-size: 15px; -fx-font-family: 'Georgia'; -fx-font-weight: bold;");

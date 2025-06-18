@@ -1,5 +1,7 @@
 package com.library.Controller;
 
+import com.library.Model.Student;
+import com.library.View.Admin.*;
 import com.library.View.Login.LoginPanel;
 import com.library.View.Login.RegisterPanel;
 import com.library.View.Student.*;
@@ -52,6 +54,37 @@ public class Navigator {
         Scene scene = new Scene(profile, mainStage.getWidth(), mainStage.getHeight());
         mainStage.setScene(scene);
     }
+    public static void showAdminHomeDashboard(String nama) {
+        AdminHomeDashboard adminHomeDashboard = new AdminHomeDashboard("Admin");
+        Scene scene = new Scene(adminHomeDashboard, mainStage.getWidth(), mainStage.getHeight());
+        mainStage.setScene(scene);
+    }
+    public static void showAdminBookManagement() {
+        AdminBookManagement adminBookManagement = new AdminBookManagement();
+        Scene scene = new Scene(adminBookManagement, mainStage.getWidth(), mainStage.getHeight());
+        mainStage.setScene(scene);
+    }
+    public static void showAdminUserManagement() {
+        AdminUserManagement adminUserManagement = new AdminUserManagement();
+        Scene scene = new Scene(adminUserManagement, mainStage.getWidth(), mainStage.getHeight());
+        mainStage.setScene(scene);
+    }
 
+    public static void showAdminUserEdit(Student student) {
+        if (student == null) {
+            System.err.println("Error: Cannot edit null student");
+            return;
+        }
+
+        AdminUserEdit adminUserEdit = new AdminUserEdit(student); // Pass parameter
+        Scene scene = new Scene(adminUserEdit, mainStage.getWidth(), mainStage.getHeight());
+        mainStage.setScene(scene);
+    }
+
+    public static void showAdminProfile() {
+        ProfileAdmin profileAdmin = new ProfileAdmin();
+        Scene scene = new Scene(profileAdmin, mainStage.getWidth(), mainStage.getHeight());
+        mainStage.setScene(scene);
+    }
 }
 
