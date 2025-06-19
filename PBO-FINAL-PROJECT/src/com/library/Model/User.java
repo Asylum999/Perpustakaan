@@ -23,12 +23,4 @@ public abstract class User {
         this.username = username;
     }
 
-    public void login ( ){
-
-    }
-
-    public void displayinfo () {
-
-    }
-
 }

@@ -101,7 +101,7 @@ public class BorrowingHistory extends BorderPane {
                 // Aksi pindah halaman
                 switch (menuItems[index]) {
                     case "Home":
-                        Navigator.showStudentDashboard("Nama Mahasiswa"); // ganti dengan variabel nama
+                        Navigator.showStudentDashboard("Nama); // ganti dengan variabel nama
                         break;
                     case "Search Book":
                         Navigator.showSearchBook();

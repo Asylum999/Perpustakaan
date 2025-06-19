@@ -33,23 +33,5 @@ public class Student extends User{
         return email;
     }
 
-    @Override
-    public void login (){
-        super.login();
-    }
-
-    @Override
-    public void displayinfo ( ){
-        System.out.println("Username : " + this.getUsername());
-        System.out.println("ID : " + this.getId());
-        System.out.println("Faculty : " + this.getFaculty());
-        System.out.println("Major : " + this.getMajor());
-        System.out.println("Email : " + this.getEmail());
-        System.out.println("---------------------------------------");
-        System.out.println("You are a student");
-        System.out.println("You can borrow books from the library");
-        System.out.println("You can request a book return");
-    }
-
 }
 

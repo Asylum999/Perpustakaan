@@ -113,7 +113,7 @@ public class AdminUserManagement extends BorderPane {
                 // Aksi pindah halaman
                 switch (menuItems[index]) {
                     case "Dashboard":
-                        Navigator.showAdminHomeDashboard("Admin Name");
+                        Navigator.showAdminHomeDashboard();
                         break;
                     case "Book Management":
                         Navigator.showAdminBookManagement();
