@@ -1,20 +1,17 @@
 package com.library.Model;
 
-public class Student extends User{
+public class Student extends User {
     private String faculty;
     private String major;
     private String email;
 
-    public Student(String username, String id, String faculty, String major,String email){
+    public Student(String username, String id, String faculty, String major, String email) {
         super(username, id);
         this.faculty = faculty;
         this.major = major;
         this.email = email;
     }
 
-    public String getFaculty() {
-        return faculty;
-    }
     public void setFaculty(String faculty) {
         this.faculty = faculty;
     }
@@ -28,28 +25,33 @@ public class Student extends User{
     public String getMajor() {
         return major;
     }
-
     public String getEmail() {
         return email;
     }
-
-    @Override
-    public void login (){
-        super.login();
+    public String getFaculty() {
+        return faculty;
     }
 
     @Override
-    public void displayinfo ( ){
-        System.out.println("Username : " + this.getUsername());
-        System.out.println("ID : " + this.getId());
-        System.out.println("Faculty : " + this.getFaculty());
-        System.out.println("Major : " + this.getMajor());
-        System.out.println("Email : " + this.getEmail());
-        System.out.println("---------------------------------------");
-        System.out.println("You are a student");
-        System.out.println("You can borrow books from the library");
-        System.out.println("You can request a book return");
+    public void login() {
+        if (authenticate()) {
+            System.out.println("Student login successful");
+            displayinfo();
+        } else {
+            System.out.println("Invalid student credentials");
+        }
     }
 
+    @Override
+    public void displayinfo() {  // Changed from displayInfo to match abstract class
+        System.out.println("\nStudent Information");
+        System.out.println("------------------");
+        System.out.println("Username : " + getUsername());
+        System.out.println("ID       : " + getId());
+        System.out.println("Faculty  : " + getFaculty());
+        System.out.println("Major    : " + getMajor());
+        System.out.println("Email    : " + getEmail());
+    }
 }
+
 

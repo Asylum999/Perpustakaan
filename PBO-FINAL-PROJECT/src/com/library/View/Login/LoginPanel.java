@@ -130,7 +130,7 @@ public class LoginPanel extends BorderPane {
         // Create the main dialog
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Password Recovery");
-        dialog.setHeaderText("Enter your student information");
+        dialog.setHeaderText("Enter your email");
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.getDialogPane().setStyle("-fx-background-color: white;");
 
@@ -140,20 +140,13 @@ public class LoginPanel extends BorderPane {
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 35, 20, 35));
 
-        // Student ID Field
-        TextField studentIdField = new TextField();
-        studentIdField.setPromptText("Enter your Student ID");
-        studentIdField.setStyle("-fx-border-color: #800000; -fx-border-radius: 5px; -fx-padding: 8;");
-
         // Email Field
         TextField emailField = new TextField();
         emailField.setPromptText("Enter your registered email");
         emailField.setStyle("-fx-border-color: #800000; -fx-border-radius: 5px; -fx-padding: 8;");
 
-        grid.add(new Label("Student ID:"), 0, 0);
-        grid.add(studentIdField, 1, 0);
-        grid.add(new Label("Email:"), 0, 1);
-        grid.add(emailField, 1, 1);
+        grid.add(new Label("Email:"), 0, 0);
+        grid.add(emailField, 1, 0);
 
         dialog.getDialogPane().setContent(grid);
 
@@ -171,18 +164,18 @@ public class LoginPanel extends BorderPane {
         // Handle verification
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == verifyButtonType) {
-                if (studentIdField.getText().trim().isEmpty() || emailField.getText().trim().isEmpty()) {
-                    showAlert("Error", "Please fill in all fields!", Alert.AlertType.ERROR);
+                if (emailField.getText().trim().isEmpty()) {
+                    showAlert("Error", "Please enter your email!", Alert.AlertType.ERROR);
                     return null;
                 }
 
                 // Here you would typically verify with your database
-                boolean verified = verifyStudent(studentIdField.getText().trim(), emailField.getText().trim());
+                boolean verified = verifyStudent(null, emailField.getText().trim());
 
                 if (verified) {
-                    showChangePasswordDialog(studentIdField.getText().trim());
+                    showChangePasswordDialog(emailField.getText().trim());
                 } else {
-                    showAlert("Error", "Student ID and email don't match our records", Alert.AlertType.ERROR);
+                    showAlert("Error", "Email not found in our records", Alert.AlertType.ERROR);
                 }
             }
             return null;

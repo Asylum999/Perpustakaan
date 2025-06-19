@@ -13,6 +13,8 @@ public class RegisterPanel extends BorderPane {
     private Button registerButton;
     public Hyperlink backtoLogin;
 
+
+
     public RegisterPanel() {
         //left side
         VBox leftPane = new VBox(-30);
@@ -101,6 +103,34 @@ public class RegisterPanel extends BorderPane {
         this.setLeft(leftPane);
         this.setCenter(registerForm);
     }
+
+    private void addInputValidation() {
+        studentIdField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                studentIdField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+        });
+
+        emailField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > 100) {
+                emailField.setText(oldValue);
+            }
+        });
+    }
+
+
+    public void cleanup() {
+        // Remove existing event handlers
+        registerButton.setOnAction(null);
+        backtoLogin.setOnAction(null);
+        nameField.textProperty().unbind();
+        studentIdField.textProperty().unbind();
+        facultyField.textProperty().unbind();
+        majorField.textProperty().unbind();
+        emailField.textProperty().unbind();
+
+    }
+
 
     public TextField getNameField() {
         return nameField;
