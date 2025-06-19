@@ -1,7 +1,6 @@
 package com.library.View.Student;
 
 import com.library.Controller.Navigator;
-import com.library.Model.Student;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -16,11 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomeDashboard extends BorderPane {
-    private Student student;
-
-    public HomeDashboard(Student student) {
-        this.student = student;
-
+    public HomeDashboard(String nama) {
         // === Sidebar ===
         VBox sidebar = new VBox(0);
         sidebar.setPrefWidth(200);
@@ -46,6 +41,7 @@ public class HomeDashboard extends BorderPane {
         String[] menuIcons = {"/images/Home.png", "/images/Search.png", "/images/Borrowinghistory.png", "/images/Notifications.png", "/images/Profile.png", "/images/Logout.png"};
 
         List<Button> allMenuButtons = new ArrayList<>();
+
         VBox menuBox = new VBox();
         menuBox.setPadding(new Insets(10, 0, 0, 0));
         menuBox.setSpacing(5);
@@ -60,16 +56,19 @@ public class HomeDashboard extends BorderPane {
             menuButton.setMaxWidth(Double.MAX_VALUE);
             menuButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;");
 
-            int index = i;
+            int index = i; // karena lambda butuh final atau effectively final
             menuButton.setOnAction(e -> {
+                // Reset semua tombol ke style default
                 for (Button btn : allMenuButtons) {
                     btn.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;");
                 }
+                // Highlight tombol yang diklik
                 menuButton.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14;");
 
+                // Aksi pindah halaman
                 switch (menuItems[index]) {
                     case "Home":
-                        Navigator.showStudentDashboard(student);
+                        Navigator.showStudentDashboard("Nama Mahasiswa"); // ganti dengan variabel nama
                         break;
                     case "Search Book":
                         Navigator.showSearchBook();
@@ -91,7 +90,7 @@ public class HomeDashboard extends BorderPane {
 
                         alert.showAndWait().ifPresent(response -> {
                             if (response == ButtonType.OK) {
-                                Navigator.showLogin();
+                                Navigator.showLogin(); // back to login screen
                             }
                         });
                         break;
@@ -103,17 +102,19 @@ public class HomeDashboard extends BorderPane {
             allMenuButtons.add(menuButton);
             menuBox.getChildren().add(menuButton);
 
+            // Highlight default misalnya "Home"
             if (menuItems[i].equals("Home")) {
                 menuButton.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14;");
             }
         }
+
 
         // === Main Content ===
         VBox mainContent = new VBox(20);
         mainContent.setPadding(new Insets(40, 40, 40, 40));
         mainContent.setStyle("-fx-background-color: #f8f9fa;");
 
-        Label welcome = new Label("Welcome, " + student.getUsername() + "!");
+        Label welcome = new Label("Welcome, " + nama + "!");
         welcome.setFont(Font.font("Arial", FontWeight.BOLD, 32));
         welcome.setTextFill(Color.web("#2c3e50"));
 
@@ -121,6 +122,7 @@ public class HomeDashboard extends BorderPane {
         subtitle.setFont(Font.font("Arial", 16));
         subtitle.setTextFill(Color.web("#7f8c8d"));
 
+        // Summary Cards
         HBox summaryBox = new HBox(25);
         summaryBox.setPadding(new Insets(30, 0, 20, 0));
         summaryBox.setAlignment(Pos.CENTER_LEFT);
@@ -131,20 +133,25 @@ public class HomeDashboard extends BorderPane {
 
         summaryBox.getChildren().addAll(borrowedCard, overdueCard, fineCard);
 
+        // Reminder Box
         VBox reminderBox = new VBox(15);
         reminderBox.setPadding(new Insets(20));
         reminderBox.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 8px; -fx-background-radius: 8px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);");
 
         HBox reminderHeader = new HBox(10);
         reminderHeader.setAlignment(Pos.CENTER_LEFT);
+
         Label reminderIcon = new Label("🔔");
         reminderIcon.setFont(Font.font("Arial", 18));
+
         Label reminderTitle = new Label("Reminders");
         reminderTitle.setTextFill(Color.web("#2c3e50"));
         reminderTitle.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+
         reminderHeader.getChildren().addAll(reminderIcon, reminderTitle);
 
         VBox reminderItems = new VBox(8);
+
         HBox reminder1 = new HBox(8);
         reminder1.setAlignment(Pos.CENTER_LEFT);
         Label bullet1 = new Label("•");
@@ -170,6 +177,7 @@ public class HomeDashboard extends BorderPane {
 
         mainContent.getChildren().addAll(welcome, subtitle, summaryBox, reminderBox);
 
+        // Layout Setup
         this.setLeft(sidebar);
         this.setCenter(mainContent);
     }
@@ -177,7 +185,7 @@ public class HomeDashboard extends BorderPane {
     private VBox createSummaryCard(String title, String iconPath, String value, String backgroundColor) {
         VBox card = new VBox(15);
         card.setPrefSize(180, 120);
-        card.setStyle("-fx-background-color: " + backgroundColor + "; -fx-background-radius: 12px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);");
+        card.setStyle("-fx-background-color: #750205 " + backgroundColor + "; -fx-background-radius: 12px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);");
         card.setAlignment(Pos.CENTER);
         card.setPadding(new Insets(20));
 

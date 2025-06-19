@@ -1,22 +1,21 @@
 package com.library.View.Admin;
 
 import com.library.Controller.Navigator;
-import com.library.Model.Admin;
 import com.library.Model.Book;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.stage.Modality;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +23,9 @@ import java.util.Optional;
 
 public class AdminBookManagement extends BorderPane {
 
-    private final Admin admin;
-    private TableView<BookTableData> bookTable;
+    private TableView<BookTableData> bookTable; // Instance variable
 
+    // Wrapper class for table display
     public static class BookTableData {
         private String no;
         private final Book book;
@@ -38,9 +37,11 @@ public class AdminBookManagement extends BorderPane {
             this.status = status;
         }
 
+        // Getters for table columns
         public String getNo() { return no; }
-        public void setNo(String no) { this.no = no; }
-
+        public void setNo(String no) { // Add this setter
+            this.no = no;
+        }
         public String getIsbn() { return book.getIsbn(); }
         public String getTitle() { return book.getTitle(); }
         public String getAuthor() { return book.getAuthor(); }
@@ -50,35 +51,37 @@ public class AdminBookManagement extends BorderPane {
         public void setStatus(String status) { this.status = status; }
     }
 
-
-    public AdminBookManagement(Admin admin) {
-        this.admin = admin;
-
-        // Sidebar
+    public AdminBookManagement() {
+        // === Sidebar (Same as Dashboard) ===
         VBox sidebar = new VBox(0);
         sidebar.setPrefWidth(200);
         sidebar.setStyle("-fx-background-color: #800000;");
 
+        // Header section with logo and title
         VBox headerSection = new VBox(-20);
         headerSection.setPadding(new Insets(20));
         headerSection.setAlignment(Pos.CENTER);
         ImageView logo = new ImageView(new Image(getClass().getResource("/images/LogoUmm.png").toExternalForm()));
         logo.setFitWidth(150);
+        logo.setFitWidth(150);
         logo.setPreserveRatio(true);
         Label labelUMM = new Label("LIBRARY");
         labelUMM.setTextFill(Color.WHITE);
         labelUMM.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        labelUMM.setAlignment(Pos.CENTER);
+        labelUMM.setWrapText(true);
         headerSection.getChildren().addAll(logo, labelUMM);
 
+        // Menu section - Admin Menu Items
         String[] menuItems = {"Dashboard", "Book Management", "User Management", "Profile", "Logout"};
         String[] menuIcons = {"/images/Home.png", "/images/Search.png", "/images/userManagement.png", "/images/Profile.png", "/images/Logout.png"};
+
+        List<Button> allMenuButtons = new ArrayList<>();
 
         VBox menuBox = new VBox();
         menuBox.setPadding(new Insets(10, 0, 0, 0));
         menuBox.setSpacing(5);
         sidebar.getChildren().addAll(headerSection, menuBox);
-
-        List<Button> allMenuButtons = new ArrayList<>();
 
         for (int i = 0; i < menuItems.length; i++) {
             Button menuButton = new Button(menuItems[i]);
@@ -91,17 +94,20 @@ public class AdminBookManagement extends BorderPane {
 
             int index = i;
             menuButton.setOnAction(e -> {
+                // Reset semua tombol ke style default
                 for (Button btn : allMenuButtons) {
                     btn.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;");
                 }
+                // Highlight tombol yang diklik
                 menuButton.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14;");
 
+                // Aksi pindah halaman
                 switch (menuItems[index]) {
                     case "Dashboard":
-                        Navigator.showAdminHomeDashboard(admin);
+                        Navigator.showAdminHomeDashboard("Admin Name");
                         break;
                     case "Book Management":
-                        Navigator.showAdminBookManagement(admin);
+                        Navigator.showAdminBookManagement();
                         break;
                     case "User Management":
                         Navigator.showAdminUserManagement();
@@ -117,18 +123,19 @@ public class AdminBookManagement extends BorderPane {
 
                         alert.showAndWait().ifPresent(response -> {
                             if (response == ButtonType.OK) {
-                                Navigator.showLogin();
+                                Navigator.showLogin(); // back to login screen
                             }
                         });
                         break;
                     default:
-                        System.out.println("Unhandled: " + menuItems[index]);
+                        System.out.println("Menu belum ditangani: " + menuItems[index]);
                 }
             });
 
             allMenuButtons.add(menuButton);
             menuBox.getChildren().add(menuButton);
 
+            // Highlight "Book Management"
             if (menuItems[i].equals("Book Management")) {
                 menuButton.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14;");
             }

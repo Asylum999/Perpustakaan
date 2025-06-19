@@ -1,6 +1,5 @@
 package com.library.Controller;
 
-import com.library.Model.Admin;
 import com.library.Model.Student;
 import com.library.View.Admin.*;
 import com.library.View.Login.LoginPanel;
@@ -29,8 +28,8 @@ public class Navigator {
         mainStage.setScene(scene);
         new com.library.Controller.RegisterController(registerPanel);
     }
-    public static void showStudentDashboard(Student student) {
-         HomeDashboard dashboard = new HomeDashboard(student);
+    public static void showStudentDashboard(String nama) {
+         HomeDashboard dashboard = new HomeDashboard(nama);
         Scene scene = new Scene(dashboard, mainStage.getWidth(), mainStage.getHeight());
         mainStage.setScene(scene);
     }
@@ -55,13 +54,13 @@ public class Navigator {
         Scene scene = new Scene(profile, mainStage.getWidth(), mainStage.getHeight());
         mainStage.setScene(scene);
     }
-    public static void showAdminHomeDashboard(Admin admin) {
-        AdminHomeDashboard adminHomeDashboard = new AdminHomeDashboard(admin);
+    public static void showAdminHomeDashboard(String nama) {
+        AdminHomeDashboard adminHomeDashboard = new AdminHomeDashboard("Admin");
         Scene scene = new Scene(adminHomeDashboard, mainStage.getWidth(), mainStage.getHeight());
         mainStage.setScene(scene);
     }
-    public static void showAdminBookManagement(Admin admin) {
-        AdminBookManagement adminBookManagement = new AdminBookManagement(admin);
+    public static void showAdminBookManagement() {
+        AdminBookManagement adminBookManagement = new AdminBookManagement();
         Scene scene = new Scene(adminBookManagement, mainStage.getWidth(), mainStage.getHeight());
         mainStage.setScene(scene);
     }
