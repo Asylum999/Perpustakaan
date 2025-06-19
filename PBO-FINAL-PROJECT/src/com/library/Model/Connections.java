@@ -155,6 +155,14 @@ public class Connections implements AutoCloseable{
         return findAdminById(id);
     }
 
+    public Student findStudentByEmail(String email) {
+        return getAllStudents().stream()
+                .filter(student -> student.getEmail().equalsIgnoreCase(email))
+                .findFirst()
+                .orElse(null);
+    }
+
+
     public Student findStudentById(String id) {
         return getAllStudents().stream()
                 .filter(student -> student.getId().equals(id))
@@ -462,7 +470,33 @@ public class Connections implements AutoCloseable{
         return null;
     }
 
-    @Override
+    public void updateStudentPassword(String studentId, String newPassword) {
+        List<User> users = getAllUsers();
+        boolean found = false;
+
+        for (int i = 0; i < users.size(); i++) {
+            User user = users.get(i);
+            if (user instanceof Student && user.getId().equals(studentId)) {
+                // Update the password (ID in this case since we're using ID as password)
+                users.set(i, new Student(
+                        user.getUsername(),
+                        newPassword,  // New password becomes the new ID
+                        ((Student) user).getFaculty(),
+                        ((Student) user).getMajor(),
+                        ((Student) user).getEmail()
+                ));
+                found = true;
+                break;
+            }
+        }
+
+        if (found) {
+            writeUsersToCsv(users);
+        }
+    }
+
+
+@Override
     public void close() {
         if (!isClosed) {
             synchronized (this) {
