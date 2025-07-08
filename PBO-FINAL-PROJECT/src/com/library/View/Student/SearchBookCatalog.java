@@ -1,6 +1,9 @@
 package com.library.View.Student;
 
 import com.library.Controller.Navigator;
+import com.library.Model.Book;
+import com.library.Model.Borrowing;
+import com.library.Model.Connections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -14,12 +17,13 @@ import javafx.scene.text.FontWeight;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchBookCatalog extends BorderPane {
 
-    private TableView<BookData> table;
+    private TableView<Book> table;
 
     public SearchBookCatalog() {
         // === Sidebar ===
@@ -97,7 +101,7 @@ public class SearchBookCatalog extends BorderPane {
 
                 switch (menuItems[index]) {
                     case "Home":
-                        Navigator.showStudentDashboard("Nama Mahasiswa");
+                        Navigator.showStudentDashboard(Navigator.getCurrentUser().getUsername());
                         break;
                     case "Search Book":
                         Navigator.showSearchBook();
@@ -204,45 +208,82 @@ public class SearchBookCatalog extends BorderPane {
         searchButton.setStyle("-fx-background-color: #800000; -fx-text-fill: white; -fx-font-size: 14px; -fx-background-radius: 5px; -fx-cursor: hand;");
         rightForm.getChildren().add(searchButton);
 
+        searchButton.setOnAction(e -> {
+            String isbnInput = isbnField.getText().toLowerCase().trim();
+            String titleInput = titleField.getText().toLowerCase().trim();
+            String authorInput = authorField.getText().toLowerCase().trim();
+            String categoryInput = categoryField.getText().toLowerCase().trim();
+
+            Connections conn = new Connections();
+            List<Book> allBooks = conn.getAllBooks();
+
+            List<Book> filtered = new ArrayList<>();
+            for (Book book : allBooks) {
+                boolean matchIsbn = isbnInput.isEmpty() || book.getIsbn().toLowerCase().contains(isbnInput);
+                boolean matchTitle = titleInput.isEmpty() || book.getTitle().toLowerCase().contains(titleInput);
+                boolean matchAuthor = authorInput.isEmpty() || book.getAuthor().toLowerCase().contains(authorInput);
+                boolean matchCategory = categoryInput.isEmpty() || book.getCategory().toLowerCase().contains(categoryInput);
+
+                if (matchIsbn && matchTitle && matchAuthor && matchCategory) {
+                    filtered.add(book);
+                }
+            }
+
+            table.setItems(FXCollections.observableArrayList(filtered));
+        });
+
+
         searchForm.getChildren().addAll(leftForm, rightForm);
         return searchForm;
     }
 
-    private TableView<BookData> createTable() {
-        TableView<BookData> table = new TableView<>();
+    private TableView<Book> createTable() {
+        TableView<Book> table = new TableView<>();
         table.setPrefHeight(400);
         table.setStyle("-fx-background-color: white; -fx-border-color: #ddd; -fx-border-radius: 5px;");
 
         // Define columns with adjusted widths
-        TableColumn<BookData, String> noCol = new TableColumn<>("No");
+        TableColumn<Book, String> noCol = new TableColumn<>("No");
         noCol.setPrefWidth(40);
         noCol.setStyle("-fx-alignment: CENTER;");
+        noCol.setCellFactory(column -> new TableCell<Book, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (this.getTableRow() != null && !empty) {
+                    setText(String.valueOf(this.getIndex() + 1));
+                } else {
+                    setText(null);
+                }
+            }
+        });
+
         noCol.setCellValueFactory(new PropertyValueFactory<>("no"));
 
-        TableColumn<BookData, String> isbnCol = new TableColumn<>("ISBN");
+        TableColumn<Book, String> isbnCol = new TableColumn<>("ISBN");
         isbnCol.setPrefWidth(150);
         isbnCol.setCellValueFactory(new PropertyValueFactory<>("isbn"));
 
-        TableColumn<BookData, String> titleCol = new TableColumn<>("Title");
+        TableColumn<Book, String> titleCol = new TableColumn<>("Title");
         titleCol.setPrefWidth(250);
         titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
 
-        TableColumn<BookData, String> authorCol = new TableColumn<>("Author");
+        TableColumn<Book, String> authorCol = new TableColumn<>("Author");
         authorCol.setPrefWidth(150);
         authorCol.setCellValueFactory(new PropertyValueFactory<>("author"));
 
-        TableColumn<BookData, String> categoryCol = new TableColumn<>("Category");
+        TableColumn<Book, String> categoryCol = new TableColumn<>("Category");
         categoryCol.setPrefWidth(120);
         categoryCol.setCellValueFactory(new PropertyValueFactory<>("category"));
 
-        TableColumn<BookData, String> statusCol = new TableColumn<>("Status");
+        TableColumn<Book, String> statusCol = new TableColumn<>("Status");
         statusCol.setPrefWidth(100);
         statusCol.setStyle("-fx-alignment: CENTER;");
         statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
 
         // Improved status column
         statusCol.setCellFactory(column -> {
-            return new TableCell<BookData, String>() {
+            return new TableCell<Book, String>() {
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
@@ -250,17 +291,20 @@ public class SearchBookCatalog extends BorderPane {
                         setGraphic(null);
                         setText(null);
                     } else {
-                        Label statusLabel = new Label(item);
+                        // Capitalize first letter (e.g. "available" -> "Available")
+                        String capitalized = item.substring(0, 1).toUpperCase() + item.substring(1).toLowerCase();
+                        Label statusLabel = new Label(capitalized);
                         statusLabel.setPadding(new Insets(3, 12, 3, 12));
                         statusLabel.setStyle("-fx-background-radius: 10px; -fx-text-fill: white; -fx-font-size: 12px; -fx-font-weight: bold;");
 
-                        if (item.equals("Available")) {
+                        if (capitalized.equals("Available")) {
                             statusLabel.setStyle(statusLabel.getStyle() + "-fx-background-color: #28a745;");
-                        } else if (item.equals("Borrowed")) {
+                        } else if (capitalized.equals("Borrowed")) {
                             statusLabel.setStyle(statusLabel.getStyle() + "-fx-background-color: #dc3545;");
                         } else {
                             statusLabel.setStyle(statusLabel.getStyle() + "-fx-background-color: #6c757d;");
                         }
+
                         setGraphic(statusLabel);
                         setText(null);
                     }
@@ -268,12 +312,13 @@ public class SearchBookCatalog extends BorderPane {
             };
         });
 
+
         // Action column
-        TableColumn<BookData, Void> actionCol = new TableColumn<>("Action");
+        TableColumn<Book, Void> actionCol = new TableColumn<>("Action");
         actionCol.setPrefWidth(100);
         actionCol.setStyle("-fx-alignment: CENTER;");
         actionCol.setCellFactory(column -> {
-            return new TableCell<BookData, Void>() {
+            return new TableCell<Book, Void>() {
                 private final Button borrowButton = new Button("Borrow");
                 private final HBox container = new HBox();
 
@@ -281,7 +326,7 @@ public class SearchBookCatalog extends BorderPane {
                     borrowButton.setStyle("-fx-background-color: #800000; -fx-text-fill: white; -fx-font-size: 12px; " +
                             "-fx-background-radius: 5px; -fx-cursor: hand; -fx-padding: 5 10;");
                     borrowButton.setOnAction(event -> {
-                        BookData book = getTableView().getItems().get(getIndex());
+                        Book book = getTableView().getItems().get(getIndex());
                         handleBorrowAction(book);
                     });
 
@@ -295,8 +340,8 @@ public class SearchBookCatalog extends BorderPane {
                     if (empty) {
                         setGraphic(null);
                     } else {
-                        BookData book = getTableView().getItems().get(getIndex());
-                        if (book.getStatus().equals("Available")) {
+                        Book book = getTableView().getItems().get(getIndex());
+                        if ("available".equalsIgnoreCase(book.getStatus())) {
                             setGraphic(container);
                         } else {
                             setGraphic(null);
@@ -308,41 +353,60 @@ public class SearchBookCatalog extends BorderPane {
 
         table.getColumns().addAll(noCol, isbnCol, titleCol, authorCol, categoryCol, statusCol, actionCol);
 
-        // Sample data
-        ObservableList<BookData> data = FXCollections.observableArrayList(
-                new BookData("1", "978-128-409-07-14", "Java Programming: From Beginner to Expert", "James Wan", "Programming", "Available"),
-                new BookData("2", "810-541-748-19-15", "Artificial Intelligence Fundamentals", "Albert Einstein", "AI", "Borrowed"),
-                new BookData("3", "978-013-468-599-1", "Effective Java", "Joshua Bloch", "Programming", "Available"),
-                new BookData("4", "978-149-195-035-7", "Designing Data-Intensive Applications", "Martin Kleppmann", "Database", "Available")
-        );
+        Connections conn = new Connections();
+        List<Book> booksFromCsv = conn.getAllBooks();
+        int no = 1;
+        for (Book book : booksFromCsv) {
+            book.setNo(String.valueOf(no++));
+        }
 
+        ObservableList<Book> data = FXCollections.observableArrayList(booksFromCsv);
         table.setItems(data);
         return table;
     }
 
-    private void handleBorrowAction(BookData book) {
-        // Create confirmation dialog
+    private void handleBorrowAction(Book book) {
         Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
         confirmDialog.setTitle("Confirm Borrow");
         confirmDialog.setHeaderText(null);
         confirmDialog.setContentText("Are you sure you want to borrow:\n" +
                 book.getTitle() + " by " + book.getAuthor() + "?");
 
-        // Style the dialog
         confirmDialog.getDialogPane().setStyle("-fx-background-color: white;");
         Button okButton = (Button) confirmDialog.getDialogPane().lookupButton(ButtonType.OK);
         okButton.setStyle("-fx-background-color: #800000; -fx-text-fill: white;");
 
-        // Show dialog and wait for response
         confirmDialog.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                // Update book status
-                book.setStatus("Borrowed");
+                Connections conn = new Connections();
 
-                // Refresh table
+                // Get current user
+                String studentId = Navigator.getCurrentUser().getId(); // Pastikan ini tersedia
+
+                // Generate borrowId (misalnya pakai timestamp + isbn)
+                String borrowId = "BRW-" + System.currentTimeMillis();
+
+                // Set tanggal hari ini dan dueDate (misal 7 hari)
+                LocalDate borrowDate = LocalDate.now();
+                LocalDate dueDate = borrowDate.plusDays(7);
+
+                Borrowing borrowing = new Borrowing(
+                        borrowId,
+                        studentId,
+                        book.getIsbn(),
+                        borrowDate,
+                        dueDate,
+                        "Borrowed"
+                );
+
+                conn.addBorrowing(borrowing);                // Tambahkan ke Borrowing.csv
+                conn.updateBookStatus(book.getIsbn(), "Borrowed"); // Ubah status buku
+
+                // Update tampilan
+                book.setStatus("Borrowed");
                 table.refresh();
 
-                // Show success message
+                // Sukses
                 Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                 successAlert.setTitle("Success");
                 successAlert.setHeaderText(null);
@@ -352,37 +416,4 @@ public class SearchBookCatalog extends BorderPane {
         });
     }
 
-    public static class BookData {
-        private String no;
-        private String isbn;
-        private String title;
-        private String author;
-        private String category;
-        private String status;
-
-        public BookData(String no, String isbn, String title, String author, String category, String status) {
-            this.no = no;
-            this.isbn = isbn;
-            this.title = title;
-            this.author = author;
-            this.category = category;
-            this.status = status;
-        }
-
-        // Getters
-        public String getNo() { return no; }
-        public String getIsbn() { return isbn; }
-        public String getTitle() { return title; }
-        public String getAuthor() { return author; }
-        public String getCategory() { return category; }
-        public String getStatus() { return status; }
-
-        // Setters
-        public void setNo(String no) { this.no = no; }
-        public void setIsbn(String isbn) { this.isbn = isbn; }
-        public void setTitle(String title) { this.title = title; }
-        public void setAuthor(String author) { this.author = author; }
-        public void setCategory(String category) { this.category = category; }
-        public void setStatus(String status) { this.status = status; }
-    }
 }

@@ -1,6 +1,9 @@
 package com.library.View.Student;
 
 import com.library.Controller.Navigator;
+import com.library.Model.Book;
+import com.library.Model.Borrowing;
+import com.library.Model.Connections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -14,34 +17,31 @@ import javafx.scene.text.FontWeight;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class BorrowingHistory extends BorderPane {
 
+    private TableView<BorrowingData> table;
+
     public BorrowingHistory() {
-        // === Sidebar ===
         VBox sidebar = createSidebar();
 
-        // === Main Content ===
         VBox mainContent = new VBox(30);
         mainContent.setPadding(new Insets(40, 40, 40, 40));
         mainContent.setStyle("-fx-background-color: #f8f9fa;");
 
-        // Title
         Label title = new Label("Borrowing History");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 32));
         title.setTextFill(Color.web("#2c3e50"));
 
-        // Summary Box
         VBox summaryBox = createSummaryBox();
-
-        // Table
-        TableView<BorrowingData> table = createTable();
+        table = createTable();
 
         mainContent.getChildren().addAll(title, summaryBox, table);
 
-        // Layout Setup
         this.setLeft(sidebar);
         this.setCenter(mainContent);
     }
@@ -51,7 +51,6 @@ public class BorrowingHistory extends BorderPane {
         sidebar.setPrefWidth(200);
         sidebar.setStyle("-fx-background-color: #800000;");
 
-        // Header section with logo and title
         VBox headerSection = new VBox(-20);
         headerSection.setPadding(new Insets(20));
         headerSection.setAlignment(Pos.CENTER);
@@ -69,7 +68,6 @@ public class BorrowingHistory extends BorderPane {
 
         headerSection.getChildren().addAll(logo, labelUMM);
 
-        // Menu section
         String[] menuItems = {"Home", "Search Book", "Borrowing History", "Notifications", "Profile", "Logout"};
         String[] menuIcons = {"/images/Home.png", "/images/Search.png", "/images/Borrowinghistory.png", "/images/Notifications.png", "/images/Profile.png", "/images/Logout.png"};
 
@@ -89,19 +87,16 @@ public class BorrowingHistory extends BorderPane {
             menuButton.setMaxWidth(Double.MAX_VALUE);
             menuButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;");
 
-            int index = i; // karena lambda butuh final atau effectively final
+            int index = i;
             menuButton.setOnAction(e -> {
-                // Reset semua tombol ke style default
                 for (Button btn : allMenuButtons) {
                     btn.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;");
                 }
-                // Highlight tombol yang diklik
                 menuButton.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14;");
 
-                // Aksi pindah halaman
                 switch (menuItems[index]) {
                     case "Home":
-                        Navigator.showStudentDashboard("Nama Mahasiswa"); // ganti dengan variabel nama
+                        Navigator.showStudentDashboard(Navigator.getCurrentUser().getUsername());
                         break;
                     case "Search Book":
                         Navigator.showSearchBook();
@@ -123,7 +118,7 @@ public class BorrowingHistory extends BorderPane {
 
                         alert.showAndWait().ifPresent(response -> {
                             if (response == ButtonType.OK) {
-                                Navigator.showLogin(); // back to login screen
+                                Navigator.showLogin();
                             }
                         });
                         break;
@@ -135,7 +130,6 @@ public class BorrowingHistory extends BorderPane {
             allMenuButtons.add(menuButton);
             menuBox.getChildren().add(menuButton);
 
-            // Highlight default misalnya "Home"
             if (menuItems[i].equals("Borrowing History")) {
                 menuButton.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14;");
             }
@@ -149,31 +143,44 @@ public class BorrowingHistory extends BorderPane {
         summaryBox.setStyle("-fx-background-color: #750205; -fx-background-radius: 10px;");
         summaryBox.setPrefWidth(800);
 
-        // Summary title
         Label summaryTitle = new Label("Summary");
         summaryTitle.setTextFill(Color.web("#f39c12"));
         summaryTitle.setFont(Font.font("Arial", FontWeight.BOLD, 18));
 
-        // Summary items
+        // Hitung dari database
+        Connections conn = new Connections();
+        String currentId = Navigator.getCurrentUser().getId();
+        List<Borrowing> borrowings = conn.getAllBorrowings();
+        int total = 0, borrowed = 0, returned = 0, overdue = 0;
+
+        LocalDate today = LocalDate.now();
+        for (Borrowing b : borrowings) {
+            if (!b.getStudentId().equals(currentId)) continue;
+
+            total++;
+            if ("Borrowed".equalsIgnoreCase(b.getStatus())) {
+                if (b.getDueDate().isBefore(today)) {
+                    overdue++;
+                } else {
+                    borrowed++;
+                }
+            } else if ("Returned".equalsIgnoreCase(b.getStatus())) {
+                returned++;
+            }
+        }
+
         VBox summaryItems = new VBox(8);
-
-        // Total Books
-        HBox totalBooksBox = createSummaryItem("Total Books", ": 6");
-
-        // Borrowed
-        HBox borrowedBox = createSummaryItem("Borrowed", ": 2");
-
-        // Returned
-        HBox returnedBox = createSummaryItem("Returned", ": 4");
-
-        // Overdue
-        HBox overdueBox = createSummaryItem("Overdue", ": 1");
+        HBox totalBooksBox = createSummaryItem("Total Books", ": " + total);
+        HBox borrowedBox = createSummaryItem("Borrowed", ": " + borrowed);
+        HBox returnedBox = createSummaryItem("Returned", ": " + returned);
+        HBox overdueBox = createSummaryItem("Overdue", ": " + overdue);
 
         summaryItems.getChildren().addAll(totalBooksBox, borrowedBox, returnedBox, overdueBox);
         summaryBox.getChildren().addAll(summaryTitle, summaryItems);
 
         return summaryBox;
     }
+
 
     private HBox createSummaryItem(String label, String value) {
         HBox itemBox = new HBox(10);
@@ -193,11 +200,13 @@ public class BorrowingHistory extends BorderPane {
     }
 
     private TableView<BorrowingData> createTable() {
+
+        String currentStudentId = Navigator.getCurrentUser().getId();  // ambil ID user login
+
         TableView<BorrowingData> table = new TableView<>();
         table.setPrefHeight(300);
         table.setStyle("-fx-background-color: white; -fx-border-color: #ddd; -fx-border-radius: 5px;");
 
-        // Define columns
         TableColumn<BorrowingData, String> noCol = new TableColumn<>("No");
         noCol.setPrefWidth(80);
         noCol.setCellValueFactory(new PropertyValueFactory<>("no"));
@@ -222,45 +231,64 @@ public class BorrowingHistory extends BorderPane {
         statusCol.setCellValueFactory(new PropertyValueFactory<>("status"));
         statusCol.setStyle("-fx-alignment: CENTER;");
 
-        // Custom cell factory for status column
-        statusCol.setCellFactory(column -> {
-            return new TableCell<BorrowingData, String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                        setStyle("");
-                    } else {
-                        setText(item);
-                        setStyle("-fx-alignment: CENTER;");
-
-                        if (item.equals("Returned")) {
-                            setTextFill(Color.web("#28a745"));
-                        } else if (item.equals("Overdue")) {
-                            setTextFill(Color.web("#dc3545"));
-                        } else if (item.equals("Borrowed")) {
-                            setTextFill(Color.web("#007bff"));
-                        }
+        statusCol.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item);
+                    setStyle("-fx-alignment: CENTER;");
+                    if (item.equals("Returned")) {
+                        setTextFill(Color.web("#28a745"));
+                    } else if (item.equals("Overdue")) {
+                        setTextFill(Color.web("#dc3545"));
+                    } else if (item.equals("Borrowed")) {
+                        setTextFill(Color.web("#007bff"));
                     }
                 }
-            };
+            }
         });
 
         table.getColumns().addAll(noCol, bookTitleCol, borrowDateCol, returnDateCol, statusCol);
 
-        // Sample data
-        ObservableList<BorrowingData> data = FXCollections.observableArrayList(
-                new BorrowingData("1", "Java Programming", "12-04-2018", "20-04-2018", "Returned"),
-                new BorrowingData("2", "Data Structures", "12-04-2018", "", "Overdue"),
-                new BorrowingData("3", "AI for Beginners", "20-04-2018", "", "Borrowed")
-        );
+        Connections conn = new Connections();
+        List<Borrowing> borrowings = conn.getAllBorrowings();
+        List<Book> books = conn.getAllBooks();
+        ObservableList<BorrowingData> data = FXCollections.observableArrayList();
+
+        int no = 1;
+        for (Borrowing b : borrowings) {
+            if (!b.getStudentId().equals(currentStudentId)) continue;
+
+            String title = books.stream()
+                    .filter(book -> book.getIsbn().equals(b.getIsbn()))
+                    .map(Book::getTitle)
+                    .findFirst()
+                    .orElse("-");
+
+            String returnDate = b.getDueDate().isBefore(LocalDate.now()) && b.getStatus().equalsIgnoreCase("Borrowed")
+                    ? ""
+                    : b.getDueDate().toString();
+
+            String status = b.getStatus();
+
+            data.add(new BorrowingData(
+                    String.valueOf(no++),
+                    title,
+                    b.getBorrowDate().toString(),
+                    returnDate,
+                    status
+            ));
+        }
+
 
         table.setItems(data);
         return table;
     }
 
-    // Data class for table
     public static class BorrowingData {
         private String no;
         private String bookTitle;
@@ -276,14 +304,12 @@ public class BorrowingHistory extends BorderPane {
             this.status = status;
         }
 
-        // Getters
         public String getNo() { return no; }
         public String getBookTitle() { return bookTitle; }
         public String getBorrowDate() { return borrowDate; }
         public String getReturnDate() { return returnDate; }
         public String getStatus() { return status; }
 
-        // Setters
         public void setNo(String no) { this.no = no; }
         public void setBookTitle(String bookTitle) { this.bookTitle = bookTitle; }
         public void setBorrowDate(String borrowDate) { this.borrowDate = borrowDate; }

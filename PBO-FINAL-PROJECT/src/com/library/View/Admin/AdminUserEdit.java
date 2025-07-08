@@ -1,6 +1,9 @@
 package com.library.View.Admin;
 
 import com.library.Controller.Navigator;
+import com.library.Model.Book;
+import com.library.Model.Borrowing;
+import com.library.Model.Connections;
 import com.library.Model.Student;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -17,6 +20,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.stage.Modality;
 
+import java.util.List;
+
 public class AdminUserEdit extends BorderPane {
 
     private Student currentStudent;
@@ -26,6 +31,7 @@ public class AdminUserEdit extends BorderPane {
     private TextField facultyField;
     private TextField emailField;
     private TableView<BookTableData> borrowedBooksTable;
+    private final Connections connections = new Connections();
 
     public static class BookTableData {
         private final String no;
@@ -238,9 +244,20 @@ public class AdminUserEdit extends BorderPane {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : changeStatusBtn);
+
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    BookTableData rowData = getTableView().getItems().get(getIndex());
+                    if ("Returned".equalsIgnoreCase(rowData.getStatus())) {
+                        setGraphic(null); // hide button if already returned
+                    } else {
+                        setGraphic(changeStatusBtn);
+                    }
+                }
             }
         });
+
 
         borrowedBooksTable.getColumns().addAll(noCol, isbnCol, titleCol, authorCol, categoryCol, statusCol, actionCol);
     }
@@ -261,31 +278,67 @@ public class AdminUserEdit extends BorderPane {
     }
 
     private void loadBorrowedBooks() {
-        // TODO: Replace with actual data from database/service
-        ObservableList<BookTableData> booksData = FXCollections.observableArrayList(
-                new BookTableData("1", "978-132-4567-09-34", "Java Programming", "James Gosling", "Programming", "Borrowing"),
-                new BookTableData("2", "890-543-1245-16-13", "AI for Beginner", "Stuart Russell", "AI", "Returned"),
-                new BookTableData("3", "890-543-1245-16-14", "Design Patterns", "Gang of Four", "Software Engineering", "Overdue")
-        );
+        ObservableList<BookTableData> booksData = FXCollections.observableArrayList();
+        String studentId = currentStudent.getId();
+
+        int no = 1;
+        for (Borrowing b : connections.getAllBorrowings()) {
+            if (b.getStudentId().equals(studentId)) {
+                // Ambil detail buku dari ISBN
+                Book book = connections.getAllBooks().stream()
+                        .filter(bk -> bk.getIsbn().equals(b.getIsbn()))
+                        .findFirst()
+                        .orElse(null);
+
+                if (book != null) {
+                    booksData.add(new BookTableData(
+                            String.valueOf(no++),
+                            book.getIsbn(),
+                            book.getTitle(),
+                            book.getAuthor(),
+                            book.getCategory(),
+                            b.getStatus() // status dari transaksi peminjaman
+                    ));
+                }
+            }
+        }
 
         borrowedBooksTable.setItems(booksData);
     }
 
-    private void changeBookStatus(BookTableData book) {
+    private void changeBookStatus(BookTableData bookData) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Change Book Status");
         alert.setHeaderText(null);
-        alert.setContentText("Change status for book: " + book.getTitle() + "?");
+        alert.setContentText("Mark this book as returned and change status to 'Available'?");
 
         styleAlert(alert);
 
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                showAlert("Success", "Book status has been changed successfully!", Alert.AlertType.INFORMATION);
-                loadBorrowedBooks(); // Refresh table
+                // 1. Update status buku ke "Available"
+                connections.updateBookStatus(bookData.getIsbn(), "Available");
+
+                // 2. Update status peminjaman ke "Returned" (bukan dihapus!)
+                List<Borrowing> borrowings = connections.getAllBorrowings();
+                for (Borrowing b : borrowings) {
+                    if (b.getStudentId().equals(currentStudent.getId()) &&
+                            b.getIsbn().equals(bookData.getIsbn()) &&
+                            b.getStatus().equalsIgnoreCase("Borrowed")) {
+
+                        b.setStatus("Returned");
+                        break; // hanya update satu transaksi saja
+                    }
+                }
+                connections.writeBorrowingsToCsv(borrowings);
+
+                // 3. Tampilkan alert dan refresh table
+                showAlert("Success", "Book status updated and borrowing marked as returned.", Alert.AlertType.INFORMATION);
+                loadBorrowedBooks(); // Refresh tampilan
             }
         });
     }
+
 
     private void styleAlert(Alert alert) {
         alert.getDialogPane().setStyle("-fx-background-color: white;");

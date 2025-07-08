@@ -1,6 +1,9 @@
 package com.library.View.Admin;
 
 import com.library.Controller.Navigator;
+import com.library.Model.Connections;
+import com.library.Model.Student;
+import com.library.Model.User;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -27,16 +30,15 @@ public class ProfileAdmin extends BorderPane {
     }
 
     private VBox createSidebar() {
+        //===Sidebar===
         VBox sidebar = new VBox(0);
         sidebar.setPrefWidth(200);
         sidebar.setStyle("-fx-background-color: #800000;");
 
-        // Header section with logo and title
         VBox headerSection = new VBox(-20);
         headerSection.setPadding(new Insets(20));
         headerSection.setAlignment(Pos.CENTER);
         ImageView logo = new ImageView(new Image(getClass().getResource("/images/LogoUmm.png").toExternalForm()));
-        logo.setFitWidth(150);
         logo.setFitWidth(150);
         logo.setPreserveRatio(true);
         Label labelUMM = new Label("LIBRARY");
@@ -45,12 +47,10 @@ public class ProfileAdmin extends BorderPane {
         labelUMM.setAlignment(Pos.CENTER);
         labelUMM.setWrapText(true);
         headerSection.getChildren().addAll(logo, labelUMM);
-        
+
         String[] menuItems = {"Dashboard", "Book Management", "User Management", "Profile", "Logout"};
         String[] menuIcons = {"/images/Home.png", "/images/Search.png", "/images/userManagement.png", "/images/Profile.png", "/images/Logout.png"};
-
         List<Button> allMenuButtons = new ArrayList<>();
-
         VBox menuBox = new VBox();
         menuBox.setPadding(new Insets(10, 0, 0, 0));
         menuBox.setSpacing(5);
@@ -77,7 +77,7 @@ public class ProfileAdmin extends BorderPane {
                 // Aksi pindah halaman
                 switch (menuItems[index]) {
                     case "Dashboard":
-                        Navigator.showAdminHomeDashboard("Admin Name");
+                        Navigator.showAdminHomeDashboard(Navigator.getCurrentUser().getUsername());
                         break;
                     case "Book Management":
                         Navigator.showAdminBookManagement();
@@ -188,78 +188,42 @@ public class ProfileAdmin extends BorderPane {
     // Add these methods to your ProfileAdmin class
 
     private void showChangePasswordModal() {
+        User user = Navigator.getCurrentUser();
+
+        if (!(user instanceof Student)) return;
+
         Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Change Admin Password");
+        dialog.setTitle("Change Password");
         dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.getDialogPane().setStyle("-fx-background-color: white;");
 
-        // Create form fields
-        PasswordField currentPasswordField = new PasswordField();
-        currentPasswordField.setStyle("-fx-border-color: #800000; -fx-border-radius: 5px; -fx-padding: 8;");
-        PasswordField newPasswordField = new PasswordField();
-        newPasswordField.setStyle("-fx-border-color: #800000; -fx-border-radius: 5px; -fx-padding: 8;");
-        PasswordField confirmPasswordField = new PasswordField();
-        confirmPasswordField.setStyle("-fx-border-color: #800000; -fx-border-radius: 5px; -fx-padding: 8;");
+        PasswordField newPassField = new PasswordField();
+        PasswordField confirmPassField = new PasswordField();
 
-        // Create form layout
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 35, 20, 35));
+        VBox form = new VBox(10,
+                new Label("New Password:"), newPassField,
+                new Label("Confirm Password:"), confirmPassField
+        );
+        form.setPadding(new Insets(20));
 
-        grid.add(new Label("Current Password:"), 0, 0);
-        grid.add(currentPasswordField, 1, 0);
-        grid.add(new Label("New Password:"), 0, 1);
-        grid.add(newPasswordField, 1, 1);
-        grid.add(new Label("Confirm Password:"), 0, 2);
-        grid.add(confirmPasswordField, 1, 2);
+        dialog.getDialogPane().setContent(form);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        dialog.getDialogPane().setContent(grid);
+        dialog.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                String newPass = newPassField.getText().trim();
+                String confirm = confirmPassField.getText().trim();
 
-        // Add buttons
-        ButtonType changeButtonType = new ButtonType("Change Password", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(changeButtonType, ButtonType.CANCEL);
-
-        // Style buttons
-        Node changeButton = dialog.getDialogPane().lookupButton(changeButtonType);
-        changeButton.setStyle("-fx-background-color: #800000; -fx-text-fill: white; -fx-font-weight: bold;");
-
-        Node cancelButton = dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
-        cancelButton.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold;");
-
-        // Process result
-        dialog.setResultConverter(buttonType -> {
-            if (buttonType == changeButtonType) {
-                // Validate fields
-                if (currentPasswordField.getText().isEmpty() ||
-                        newPasswordField.getText().isEmpty() ||
-                        confirmPasswordField.getText().isEmpty()) {
-
-                    showAlert("Error", "Please fill in all fields", Alert.AlertType.ERROR);
-                    return null;
+                if (newPass.isEmpty() || !newPass.equals(confirm)) {
+                    showAlert("Error", "Passwords do not match or are empty.", Alert.AlertType.ERROR);
+                    return;
                 }
 
-                if (!newPasswordField.getText().equals(confirmPasswordField.getText())) {
-                    showAlert("Error", "New passwords don't match", Alert.AlertType.ERROR);
-                    return null;
-                }
-
-                if (newPasswordField.getText().length() < 8) {
-                    showAlert("Error", "Password must be at least 8 characters", Alert.AlertType.ERROR);
-                    return null;
-                }
-                if (newPasswordField.getText().equals(currentPasswordField.getText())) {
-                    showAlert("Error", "New password must be different from current password", Alert.AlertType.ERROR);
-                    return null;
-                }
-
-                showAlert("Success", "Admin password changed successfully!", Alert.AlertType.INFORMATION);
+                new Connections().updateStudentPassword(user.getId(), newPass);
+                showAlert("Success", "Password changed successfully.", Alert.AlertType.INFORMATION);
             }
-            return null;
         });
-
-        dialog.showAndWait();
     }
+
 
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);

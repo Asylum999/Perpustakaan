@@ -1,6 +1,8 @@
 package com.library.View.Student;
 
 import com.library.Controller.Navigator;
+import com.library.Model.Borrowing;
+import com.library.Model.Connections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -11,8 +13,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class HomeDashboard extends BorderPane {
     public HomeDashboard(String nama) {
@@ -21,7 +25,6 @@ public class HomeDashboard extends BorderPane {
         sidebar.setPrefWidth(200);
         sidebar.setStyle("-fx-background-color: #800000;");
 
-        // Header section with logo and title
         VBox headerSection = new VBox(-20);
         headerSection.setPadding(new Insets(20));
         headerSection.setAlignment(Pos.CENTER);
@@ -36,12 +39,10 @@ public class HomeDashboard extends BorderPane {
         labelUMM.setWrapText(true);
         headerSection.getChildren().addAll(logo, labelUMM);
 
-        // Menu section
         String[] menuItems = {"Home", "Search Book", "Borrowing History", "Notifications", "Profile", "Logout"};
         String[] menuIcons = {"/images/Home.png", "/images/Search.png", "/images/Borrowinghistory.png", "/images/Notifications.png", "/images/Profile.png", "/images/Logout.png"};
 
         List<Button> allMenuButtons = new ArrayList<>();
-
         VBox menuBox = new VBox();
         menuBox.setPadding(new Insets(10, 0, 0, 0));
         menuBox.setSpacing(5);
@@ -56,19 +57,16 @@ public class HomeDashboard extends BorderPane {
             menuButton.setMaxWidth(Double.MAX_VALUE);
             menuButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;");
 
-            int index = i; // karena lambda butuh final atau effectively final
+            int index = i;
             menuButton.setOnAction(e -> {
-                // Reset semua tombol ke style default
                 for (Button btn : allMenuButtons) {
                     btn.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;");
                 }
-                // Highlight tombol yang diklik
                 menuButton.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14;");
 
-                // Aksi pindah halaman
                 switch (menuItems[index]) {
                     case "Home":
-                        Navigator.showStudentDashboard("Nama Mahasiswa"); // ganti dengan variabel nama
+                        Navigator.showStudentDashboard(Navigator.getCurrentUser().getUsername());
                         break;
                     case "Search Book":
                         Navigator.showSearchBook();
@@ -87,27 +85,22 @@ public class HomeDashboard extends BorderPane {
                         alert.setTitle("Logout Confirmation");
                         alert.setHeaderText("Do you really want to logout?");
                         alert.setContentText("Press OK to proceed or Cancel to stay.");
-
                         alert.showAndWait().ifPresent(response -> {
                             if (response == ButtonType.OK) {
-                                Navigator.showLogin(); // back to login screen
+                                Navigator.showLogin();
                             }
                         });
                         break;
-                    default:
-                        System.out.println("Menu belum ditangani: " + menuItems[index]);
                 }
             });
 
             allMenuButtons.add(menuButton);
             menuBox.getChildren().add(menuButton);
 
-            // Highlight default misalnya "Home"
             if (menuItems[i].equals("Home")) {
                 menuButton.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14;");
             }
         }
-
 
         // === Main Content ===
         VBox mainContent = new VBox(20);
@@ -122,62 +115,84 @@ public class HomeDashboard extends BorderPane {
         subtitle.setFont(Font.font("Arial", 16));
         subtitle.setTextFill(Color.web("#7f8c8d"));
 
-        // Summary Cards
         HBox summaryBox = new HBox(25);
         summaryBox.setPadding(new Insets(30, 0, 20, 0));
         summaryBox.setAlignment(Pos.CENTER_LEFT);
 
-        VBox borrowedCard = createSummaryCard("Borrowed", "/images/Borrowedsummary.png", "3", "#34495e");
-        VBox overdueCard = createSummaryCard("Overdue", "/images/Overduesummary.png", "1", "#34495e");
-        VBox fineCard = createSummaryCard("Fine", "/images/Finesummary.png", "Rp5,000", "#34495e");
+        Connections conn = new Connections();
+        String currentId = Navigator.getCurrentUser().getId();
+
+        int borrowed = 0;
+        int overdue = 0;
+        double fineAmount = 0.0;
+
+        for (Borrowing b : conn.getAllBorrowings()) {
+            if (b.getStudentId().equals(currentId)) {
+                if ("Borrowed".equalsIgnoreCase(b.getStatus())) {
+                    if (b.getDueDate().isBefore(LocalDate.now())) {
+                        overdue++;
+                    } else {
+                        borrowed++;
+                    }
+                }
+            }
+        }
+
+        for (var f : conn.getAllFines()) {
+            if (f.getStudentId().equals(currentId) && "Unpaid".equalsIgnoreCase(f.getStatus())) {
+                fineAmount += f.getAmount();
+            }
+        }
+
+        VBox borrowedCard = createSummaryCard("Borrowed", "/images/Borrowedsummary.png", String.valueOf(borrowed), "#34495e");
+        VBox overdueCard = createSummaryCard("Overdue", "/images/Overduesummary.png", String.valueOf(overdue), "#34495e");
+        VBox fineCard = createSummaryCard("Fine", "/images/Finesummary.png", "Rp" + String.format("%,.0f", fineAmount), "#34495e");
 
         summaryBox.getChildren().addAll(borrowedCard, overdueCard, fineCard);
 
-        // Reminder Box
-        VBox reminderBox = new VBox(15);
-        reminderBox.setPadding(new Insets(20));
-        reminderBox.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 8px; -fx-background-radius: 8px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);");
-
-        HBox reminderHeader = new HBox(10);
-        reminderHeader.setAlignment(Pos.CENTER_LEFT);
-
-        Label reminderIcon = new Label("🔔");
-        reminderIcon.setFont(Font.font("Arial", 18));
-
-        Label reminderTitle = new Label("Reminders");
-        reminderTitle.setTextFill(Color.web("#2c3e50"));
+        // === Reminder Section ===
+        VBox reminderCard = new VBox(15);
+        reminderCard.setPadding(new Insets(20));
+        reminderCard.setStyle("-fx-background-color: white; -fx-border-color: #e0e0e0; -fx-border-radius: 8px; -fx-background-radius: 8px;");
+        Label reminderTitle = new Label("\uD83D\uDD14 Reminders");
         reminderTitle.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        reminderTitle.setTextFill(Color.web("#2c3e50"));
 
-        reminderHeader.getChildren().addAll(reminderIcon, reminderTitle);
+        LocalDate today = LocalDate.now();
+        List<Borrowing> dueSoon = conn.getAllBorrowings().stream()
+                .filter(b -> b.getStudentId().equals(currentId))
+                .filter(b -> b.getStatus().equalsIgnoreCase("Borrowed"))
+                .filter(b -> !b.getDueDate().isBefore(today))
+                .filter(b -> !b.getDueDate().isAfter(today.plusDays(7)))
+                .collect(Collectors.toList());
 
-        VBox reminderItems = new VBox(8);
+        VBox reminderList = new VBox(5);
+        if (dueSoon.isEmpty()) {
+            Label emptyLabel = new Label("No upcoming due dates.");
+            emptyLabel.setFont(Font.font("Arial", 13));
+            emptyLabel.setTextFill(Color.web("#7f8c8d"));
+            reminderList.getChildren().add(emptyLabel);
+        } else {
+            for (Borrowing b : dueSoon) {
+                String title = conn.getAllBooks().stream()
+                        .filter(book -> book.getIsbn().equals(b.getIsbn()))
+                        .map(book -> book.getTitle())
+                        .findFirst()
+                        .orElse("Unknown Title");
 
-        HBox reminder1 = new HBox(8);
-        reminder1.setAlignment(Pos.CENTER_LEFT);
-        Label bullet1 = new Label("•");
-        bullet1.setTextFill(Color.web("#7f8c8d"));
-        bullet1.setFont(Font.font("Arial", 16));
-        Label r1 = new Label("1 book due in 3 days");
-        r1.setFont(Font.font("Arial", 14));
-        r1.setTextFill(Color.web("#2c3e50"));
-        reminder1.getChildren().addAll(bullet1, r1);
+                Label item = new Label("- " + title + " due " + b.getDueDate());
+                item.setFont(Font.font("Arial", 13));
+                item.setTextFill(Color.web("#2c3e50"));
+                reminderList.getChildren().add(item);
+            }
+        }
 
-        HBox reminder2 = new HBox(8);
-        reminder2.setAlignment(Pos.CENTER_LEFT);
-        Label bullet2 = new Label("•");
-        bullet2.setTextFill(Color.web("#7f8c8d"));
-        bullet2.setFont(Font.font("Arial", 16));
-        Label r2 = new Label("Return overdue book to avoid more fines");
-        r2.setFont(Font.font("Arial", 14));
-        r2.setTextFill(Color.web("#2c3e50"));
-        reminder2.getChildren().addAll(bullet2, r2);
+        reminderCard.getChildren().addAll(reminderTitle, reminderList);
 
-        reminderItems.getChildren().addAll(reminder1, reminder2);
-        reminderBox.getChildren().addAll(reminderHeader, reminderItems);
+        // Tambahkan semua ke main content
+        mainContent.getChildren().addAll(welcome, subtitle, summaryBox, reminderCard);
 
-        mainContent.getChildren().addAll(welcome, subtitle, summaryBox, reminderBox);
-
-        // Layout Setup
+        // Set layout
         this.setLeft(sidebar);
         this.setCenter(mainContent);
     }

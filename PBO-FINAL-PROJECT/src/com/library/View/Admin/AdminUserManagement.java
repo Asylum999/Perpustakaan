@@ -1,6 +1,7 @@
 package com.library.View.Admin;
 
 import com.library.Controller.Navigator;
+import com.library.Model.Connections;
 import com.library.Model.Student;
 import com.library.Model.User;
 import javafx.geometry.Insets;
@@ -61,17 +62,15 @@ public class AdminUserManagement extends BorderPane {
     }
 
     public AdminUserManagement() {
-        // === Sidebar (Same as Dashboard) ===
+        //===Sidebar===
         VBox sidebar = new VBox(0);
         sidebar.setPrefWidth(200);
         sidebar.setStyle("-fx-background-color: #800000;");
 
-        // Header section with logo and title
         VBox headerSection = new VBox(-20);
         headerSection.setPadding(new Insets(20));
         headerSection.setAlignment(Pos.CENTER);
         ImageView logo = new ImageView(new Image(getClass().getResource("/images/LogoUmm.png").toExternalForm()));
-        logo.setFitWidth(150);
         logo.setFitWidth(150);
         logo.setPreserveRatio(true);
         Label labelUMM = new Label("LIBRARY");
@@ -81,12 +80,9 @@ public class AdminUserManagement extends BorderPane {
         labelUMM.setWrapText(true);
         headerSection.getChildren().addAll(logo, labelUMM);
 
-        // Menu section - Admin Menu Items
         String[] menuItems = {"Dashboard", "Book Management", "User Management", "Profile", "Logout"};
         String[] menuIcons = {"/images/Home.png", "/images/Search.png", "/images/userManagement.png", "/images/Profile.png", "/images/Logout.png"};
-
         List<Button> allMenuButtons = new ArrayList<>();
-
         VBox menuBox = new VBox();
         menuBox.setPadding(new Insets(10, 0, 0, 0));
         menuBox.setSpacing(5);
@@ -113,7 +109,7 @@ public class AdminUserManagement extends BorderPane {
                 // Aksi pindah halaman
                 switch (menuItems[index]) {
                     case "Dashboard":
-                        Navigator.showAdminHomeDashboard("Admin Name");
+                        Navigator.showAdminHomeDashboard(Navigator.getCurrentUser().getUsername());
                         break;
                     case "Book Management":
                         Navigator.showAdminBookManagement();
@@ -261,16 +257,17 @@ public class AdminUserManagement extends BorderPane {
 
         userTable.getColumns().addAll(noCol, nameCol, studentIdCol, majorCol, facultyCol, emailCol, actionCol);
 
-        // Sample data
-        ObservableList<UserTableData> userData = FXCollections.observableArrayList(
-                new UserTableData("1", new Student("202410370110024", "POPO", "Informatics", "Technic", "POPO")),
-                new UserTableData("2", new Student("202410370110165", "LALA", "Informatics", "Technic", "LALA"))
-        );
+        ObservableList<UserTableData> userData = FXCollections.observableArrayList();
+        Connections connections = new Connections();
+        List<Student> students = connections.getAllStudents();
 
-        // Add sample rows
-        for (int i = 3; i <= 15; i++) {
-            userData.add(new UserTableData(String.valueOf(i), new Student("Sample", "Sample", "Sample", "Sample", "Sample")));
+        int no = 1;
+        for (Student s : students) {
+            userData.add(new UserTableData(String.valueOf(no++), s));
         }
+
+        userTable.setItems(userData);
+
 
         userTable.setItems(userData);
         leftSide.getChildren().add(userTable);
@@ -347,16 +344,14 @@ public class AdminUserManagement extends BorderPane {
 
     // Method to perform search - updated parameter order
     private void performSearch(String studentId, String name, String major, String faculty, String email) {
-        // Filter the table based on search criteria
-        ObservableList<UserTableData> allUsers = FXCollections.observableArrayList(
-                new UserTableData("1", new Student("202410370110024", "POPO", "Informatics", "Technic", "POPO")),
-                new UserTableData("2", new Student("202410370110165", "LALA", "Informatics", "Technic", "LALA"))
-        );
-
-        // Add sample rows
-        for (int i = 3; i <= 15; i++) {
-            allUsers.add(new UserTableData(String.valueOf(i), new Student("Sample", "Sample", "Sample", "Sample", "Sample")));
+        ObservableList<UserTableData> allUsers = FXCollections.observableArrayList();
+        Connections connections = new Connections();
+        List<Student> students = connections.getAllStudents();
+        int no = 1;
+        for (Student s : students) {
+            allUsers.add(new UserTableData(String.valueOf(no++), s));
         }
+
 
         ObservableList<UserTableData> filteredUsers = FXCollections.observableArrayList();
 
@@ -409,6 +404,12 @@ public class AdminUserManagement extends BorderPane {
             if (response == ButtonType.OK) {
                 // Remove user from table
                 userTable.getItems().remove(user);
+                // Remove from CSV
+                Connections connections = new Connections();
+                List<User> allUsers = connections.getAllUsers();
+                allUsers.removeIf(u -> u.getId().equals(user.getStudentId()));
+                connections.writeUsersToCsv(allUsers);
+
                 showAlert("Success", "User has been successfully deleted!", Alert.AlertType.INFORMATION);
             }
         });

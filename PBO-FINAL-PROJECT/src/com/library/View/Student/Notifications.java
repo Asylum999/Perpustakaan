@@ -1,6 +1,9 @@
 package com.library.View.Student;
 
 import com.library.Controller.Navigator;
+import com.library.Model.Book;
+import com.library.Model.Borrowing;
+import com.library.Model.Connections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -11,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +33,6 @@ public class Notifications extends BorderPane {
         sidebar.setPrefWidth(200);
         sidebar.setStyle("-fx-background-color: #800000;");
 
-        // Header section with logo and title
         VBox headerSection = new VBox(-20);
         headerSection.setPadding(new Insets(20));
         headerSection.setAlignment(Pos.CENTER);
@@ -48,7 +51,6 @@ public class Notifications extends BorderPane {
         String[] menuIcons = {"/images/Home.png", "/images/Search.png", "/images/Borrowinghistory.png", "/images/Notifications.png", "/images/Profile.png", "/images/Logout.png"};
 
         List<Button> allMenuButtons = new ArrayList<>();
-
         VBox menuBox = new VBox();
         menuBox.setPadding(new Insets(10, 0, 0, 0));
         menuBox.setSpacing(5);
@@ -63,19 +65,16 @@ public class Notifications extends BorderPane {
             menuButton.setMaxWidth(Double.MAX_VALUE);
             menuButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;");
 
-            int index = i; // karena lambda butuh final atau effectively final
+            int index = i;
             menuButton.setOnAction(e -> {
-                // Reset semua tombol ke style default
                 for (Button btn : allMenuButtons) {
                     btn.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;");
                 }
-                // Highlight tombol yang diklik
                 menuButton.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14;");
 
-                // Aksi pindah halaman
                 switch (menuItems[index]) {
                     case "Home":
-                        Navigator.showStudentDashboard("Nama Mahasiswa"); // ganti dengan variabel nama
+                        Navigator.showStudentDashboard(Navigator.getCurrentUser().getUsername());
                         break;
                     case "Search Book":
                         Navigator.showSearchBook();
@@ -97,23 +96,21 @@ public class Notifications extends BorderPane {
 
                         alert.showAndWait().ifPresent(response -> {
                             if (response == ButtonType.OK) {
-                                Navigator.showLogin(); // back to login screen
+                                Navigator.showLogin();
                             }
                         });
                         break;
-                    default:
-                        System.out.println("Menu belum ditangani: " + menuItems[index]);
                 }
             });
 
             allMenuButtons.add(menuButton);
             menuBox.getChildren().add(menuButton);
 
-            // Highlight default misalnya "Home"
             if (menuItems[i].equals("Notifications")) {
                 menuButton.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14;");
             }
         }
+
         return sidebar;
     }
 
@@ -128,23 +125,62 @@ public class Notifications extends BorderPane {
 
         VBox notifBox = new VBox(15);
 
-        notifBox.getChildren().addAll(
-                createNotifItem(
-                        "Your book request \"Java Programming\" is now available.",
-                        "Pick up before: 18 June 2025",
-                        "12 Minute Ago"
-                ),
-                createNotifItem(
-                        "\"AI for Beginner\" is due in 2 days.",
-                        "Due Date: 20 June 2025",
-                        "5 Minute Ago"
-                ),
-                createNotifItem(
-                        "\"Data Structure\" is overdue! Please return it immediately.",
-                        "Due Date: 21 June 2025",
-                        "1 Minute Ago"
-                )
-        );
+        String userId = Navigator.getCurrentUser().getId();
+        Connections conn = new Connections();
+        List<Borrowing> borrowings = conn.getAllBorrowings();
+        List<Book> books = conn.getAllBooks();
+
+        LocalDate today = LocalDate.now();
+
+        for (Borrowing b : borrowings) {
+            if (!b.getStudentId().equals(userId)) continue;
+
+            String bookTitle = books.stream()
+                    .filter(book -> book.getIsbn().equals(b.getIsbn()))
+                    .map(Book::getTitle)
+                    .findFirst()
+                    .orElse("Unknown Title");
+
+            long daysToDue = java.time.temporal.ChronoUnit.DAYS.between(today, b.getDueDate());
+
+            if ("Borrowed".equalsIgnoreCase(b.getStatus())) {
+                // ✅ 1. Notifikasi umum setelah peminjaman
+                notifBox.getChildren().add(
+                        createNotifItem(
+                                "You borrowed \"" + bookTitle + "\".",
+                                "Due Date: " + b.getDueDate(),
+                                "Just borrowed"
+                        )
+                );
+
+                // ❌ 2. Sudah jatuh tempo
+                if (daysToDue < 0) {
+                    notifBox.getChildren().add(
+                            createNotifItem(
+                                    "\"" + bookTitle + "\" is overdue! Please return it immediately.",
+                                    "Due Date: " + b.getDueDate(),
+                                    "Overdue"
+                            )
+                    );
+                }
+                // ⚠️ 3. Akan jatuh tempo dalam 3 hari
+                else if (daysToDue <= 3) {
+                    notifBox.getChildren().add(
+                            createNotifItem(
+                                    "\"" + bookTitle + "\" is due in " + daysToDue + " days.",
+                                    "Due Date: " + b.getDueDate(),
+                                    daysToDue + " day(s) left"
+                            )
+                    );
+                }
+            }
+        }
+
+        if (notifBox.getChildren().isEmpty()) {
+            Label noNotif = new Label("You have no notifications.");
+            noNotif.setFont(Font.font("Arial", FontWeight.NORMAL, 14));
+            notifBox.getChildren().add(noNotif);
+        }
 
         mainContent.getChildren().addAll(title, notifBox);
         return mainContent;
@@ -170,4 +206,3 @@ public class Notifications extends BorderPane {
         return notif;
     }
 }
-

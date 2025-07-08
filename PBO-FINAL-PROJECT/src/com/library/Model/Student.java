@@ -6,10 +6,10 @@ public class Student extends User {
     private String email;
 
     public Student(String username, String id, String faculty, String major, String email) {
-        super(username, id);
+        super(username, id); // ← ini manggil constructor User yang error
         this.faculty = faculty;
         this.major = major;
-        this.email = email;
+        setEmail(email); // opsional, tergantung constructor di atas
     }
 
     public void setFaculty(String faculty) {

@@ -1,3 +1,4 @@
-Type,Username,ID,Faculty,Major,Email
-student,Shetma Ikmal Zakka,null,Engineering,Computer Science,ikmalzakka@webmail.umm.ac.id
-admin,Admin123,null,,,,
+Type;Username;ID;Faculty;Major;Email
+student;Farrel Anizar Razzani;202410370110165;Teknik;Informatika;farrelanzraz@webmail.umm.ac.id
+student;Shetma Ikmal Zakka;202410370110185;Teknik;Informatika;shetmaikmalzakka@webmail.umm.ac.id
+admin;Admin123;987654321;;;

@@ -3,41 +3,16 @@ package com.library.Model;
 public abstract class User {
     private String username;
     private String id;
-    private String email;
-    private String hashedId;
 
 
     public User(String username, String id) {
         this.username = username;
-        this.email = email;
-        this.hashedId = hashedId;
-
-    }
-
-    public User(String id, String username, String email, String hashedId) {
         this.id = id;
-        this.username = username;
-        this.email = email;
-        this.hashedId = hashedId;
     }
+
 
 
     // Getters
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getHashedId() {
-        return hashedId;
-    }
-
-    public void setHashedId(String hashedId) {
-        this.hashedId = hashedId;
-    }
 
 public String getUsername() {
         return username;

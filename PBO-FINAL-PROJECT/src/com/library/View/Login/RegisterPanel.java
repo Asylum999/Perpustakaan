@@ -155,5 +155,9 @@ public class RegisterPanel extends BorderPane {
     public Button getRegisterButton() {
         return registerButton;
     }
+
+    public Hyperlink getBacktoLogin() {
+        return backtoLogin;
+    }
 }
 

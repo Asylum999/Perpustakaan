@@ -28,7 +28,6 @@ public class LoginController implements AutoCloseable {
         };
     }
 
-
     private void handleLogin() {
         String username = view.getUsernameField().getText().trim();
         String id = view.getPasswordField().getText().trim();
@@ -46,7 +45,10 @@ public class LoginController implements AutoCloseable {
 
             System.out.println("User found: " + (user != null)); // Debug line
 
+
             if (user != null) {
+                Navigator.setCurrentUser(user); // ✅ Tambahkan ini
+
                 if (user instanceof Admin) {
                     Navigator.showAdminHomeDashboard(user.getUsername());
                 } else if (user instanceof Student) {
@@ -56,6 +58,7 @@ public class LoginController implements AutoCloseable {
                 showAlert(Alert.AlertType.ERROR, "Login Failed",
                         "Invalid username or ID. Please try again.");
             }
+
         } catch (Exception e) {
             System.err.println("Error during login: " + e.getMessage());
             e.printStackTrace();

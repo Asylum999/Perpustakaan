@@ -5,12 +5,16 @@ public class Book {
     private String title;
     private String author;
     private String category;
+    private String status;
+    private String no;
 
-    public Book(String isbn, String title, String author, String category) {
+    public Book(String isbn, String title, String author, String category, String status) {
         this.isbn = isbn;
         this.author = author;
         this.title = title;
         this.category = category;
+        this.status = status;
+
     }
 
     // Getters
@@ -45,6 +49,22 @@ public class Book {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getNo() {
+        return no;
+    }
+
+    public void setNo(String no) {
+        this.no = no;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     // Helper method for saving changes

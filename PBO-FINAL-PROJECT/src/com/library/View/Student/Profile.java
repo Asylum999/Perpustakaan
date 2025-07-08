@@ -1,6 +1,9 @@
 package com.library.View.Student;
 
 import com.library.Controller.Navigator;
+import com.library.Model.Connections;
+import com.library.Model.Student;
+import com.library.Model.User;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -31,7 +34,6 @@ public class Profile extends BorderPane {
         sidebar.setPrefWidth(200);
         sidebar.setStyle("-fx-background-color: #800000;");
 
-        // Header section with logo and title
         VBox headerSection = new VBox(-20);
         headerSection.setPadding(new Insets(20));
         headerSection.setAlignment(Pos.CENTER);
@@ -65,19 +67,16 @@ public class Profile extends BorderPane {
             menuButton.setMaxWidth(Double.MAX_VALUE);
             menuButton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;");
 
-            int index = i; // karena lambda butuh final atau effectively final
+            int index = i;
             menuButton.setOnAction(e -> {
-                // Reset semua tombol ke style default
                 for (Button btn : allMenuButtons) {
                     btn.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14;");
                 }
-                // Highlight tombol yang diklik
                 menuButton.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14;");
 
-                // Aksi pindah halaman
                 switch (menuItems[index]) {
                     case "Home":
-                        Navigator.showStudentDashboard("Nama Mahasiswa"); // ganti dengan variabel nama
+                        Navigator.showStudentDashboard(Navigator.getCurrentUser().getUsername());
                         break;
                     case "Search Book":
                         Navigator.showSearchBook();
@@ -99,19 +98,16 @@ public class Profile extends BorderPane {
 
                         alert.showAndWait().ifPresent(response -> {
                             if (response == ButtonType.OK) {
-                                Navigator.showLogin(); // back to login screen
+                                Navigator.showLogin();
                             }
                         });
                         break;
-                    default:
-                        System.out.println("Menu belum ditangani: " + menuItems[index]);
                 }
             });
 
             allMenuButtons.add(menuButton);
             menuBox.getChildren().add(menuButton);
 
-            // Highlight default misalnya "Home"
             if (menuItems[i].equals("Profile")) {
                 menuButton.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-font-size: 14;");
             }
@@ -124,7 +120,13 @@ public class Profile extends BorderPane {
         mainContent.setPadding(new Insets(40));
         mainContent.setStyle("-fx-background-color: #f8f9fa;");
 
-        // === Profile Header ===
+        User rawUser = Navigator.getCurrentUser();
+        if (!(rawUser instanceof Student student)) {
+            System.err.println("Current user is not a Student");
+            return new VBox(); // kosongin UI jika bukan student
+        }
+
+
         HBox profileHeader = new HBox(20);
         profileHeader.setPadding(new Insets(30));
         profileHeader.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 2);");
@@ -136,10 +138,10 @@ public class Profile extends BorderPane {
         VBox profileDetails = new VBox(10);
         profileDetails.setAlignment(Pos.CENTER_LEFT);
 
-        Label nameLabel = new Label("Farrel Anizar Razzani");
+        Label nameLabel = new Label(student.getUsername());
         nameLabel.setFont(Font.font("Arial", FontWeight.BOLD, 20));
 
-        Label idLabel = new Label("202410370110165");
+        Label idLabel = new Label(student.getId());
         idLabel.setFont(Font.font("Arial", 14));
 
         Label roleLabel = new Label("Student");
@@ -154,7 +156,6 @@ public class Profile extends BorderPane {
         profileDetails.getChildren().addAll(nameLabel, idLabel, roleLabel, editProfileBtn);
         profileHeader.getChildren().addAll(profileImage, profileDetails);
 
-        // === General Information ===
         VBox generalBox = new VBox(15);
         generalBox.setPadding(new Insets(30));
         generalBox.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 2);");
@@ -164,11 +165,11 @@ public class Profile extends BorderPane {
 
         VBox infoList = new VBox(8);
         infoList.getChildren().addAll(
-                createInfoRow("Full Name", "Farrel Anizar Razzani"),
-                createInfoRow("Student ID", "202410370110165"),
-                createInfoRow("Email", "farrelq@students.umm.ac.id"),
-                createInfoRow("Faculty", "Engineering"),
-                createInfoRow("Major", "Informatics")
+                createInfoRow("Full Name", student.getUsername()),
+                createInfoRow("Student ID", student.getId()),
+                createInfoRow("Email", student.getEmail()),
+                createInfoRow("Faculty", student.getFaculty()),
+                createInfoRow("Major", student.getMajor())
         );
 
         Button changePasswordBtn = new Button("Change Password");
@@ -197,135 +198,87 @@ public class Profile extends BorderPane {
         return row;
     }
 
-    // Add these methods to your Profile class
-
+    // Modal methods (unchanged)
     private void showEditProfileModal() {
+        User currentUser = Navigator.getCurrentUser();
+
+        if (!(currentUser instanceof Student)) return;
+
+        Student student = (Student) currentUser;
+
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit Profile");
         dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.getDialogPane().setStyle("-fx-background-color: white;");
 
-        // Create form fields
-        TextField nameField = new TextField("Farrel Anizar Razzani");
-        nameField.setStyle("-fx-border-color: #800000; -fx-border-radius: 5px; -fx-padding: 8;");
-        TextField emailField = new TextField("farrelq@students.umm.ac.id");
-        emailField.setStyle("-fx-border-color: #800000; -fx-border-radius: 5px; -fx-padding: 8;");
-        TextField facultyField = new TextField("Engineering");
-        facultyField.setStyle("-fx-border-color: #800000; -fx-border-radius: 5px; -fx-padding: 8;");
-        TextField majorField = new TextField("Informatics");
-        majorField.setStyle("-fx-border-color: #800000; -fx-border-radius: 5px; -fx-padding: 8;");
+        // Input fields
+        TextField nameField = new TextField(student.getUsername());
+        TextField emailField = new TextField(student.getEmail());
+        TextField facultyField = new TextField(student.getFaculty());
+        TextField majorField = new TextField(student.getMajor());
 
-        // Create form layout
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 35, 20, 35));
+        VBox form = new VBox(10,
+                new Label("Name:"), nameField,
+                new Label("Email:"), emailField,
+                new Label("Faculty:"), facultyField,
+                new Label("Major:"), majorField
+        );
+        form.setPadding(new Insets(20));
+        form.setPrefWidth(400);
 
-        grid.add(new Label("Full Name:"), 0, 0);
-        grid.add(nameField, 1, 0);
-        grid.add(new Label("Email:"), 0, 1);
-        grid.add(emailField, 1, 1);
-        grid.add(new Label("Faculty:"), 0, 2);
-        grid.add(facultyField, 1, 2);
-        grid.add(new Label("Major:"), 0, 3);
-        grid.add(majorField, 1, 3);
+        dialog.getDialogPane().setContent(form);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        dialog.getDialogPane().setContent(grid);
+        dialog.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                student.setUsername(nameField.getText().trim());
+                student.setEmail(emailField.getText().trim());
+                student.setFaculty(facultyField.getText().trim());
+                student.setMajor(majorField.getText().trim());
 
-        // Add buttons
-        ButtonType saveButtonType = new ButtonType("Save Changes", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+                new Connections().updateUser(student);
+                Navigator.setCurrentUser(student); // update session
 
-        // Style buttons
-        Node saveButton = dialog.getDialogPane().lookupButton(saveButtonType);
-        saveButton.setStyle("-fx-background-color: #800000; -fx-text-fill: white; -fx-font-weight: bold;");
-
-        Node cancelButton = dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
-        cancelButton.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold;");
-
-        // Process result
-        dialog.showAndWait().ifPresent(result -> {
-            if (result == saveButtonType) {
-                // Here you would normally update the profile in your database
-                // For now we'll just show a success message
-                showAlert("Success", "Profile updated successfully!", Alert.AlertType.INFORMATION);
-
-                // In a real app, you would update the displayed profile information here
-                // For example: nameLabel.setText(nameField.getText());
+                showAlert("Success", "Profile updated successfully.", Alert.AlertType.INFORMATION);
+                Navigator.showProfile(); // refresh tampilan
             }
         });
     }
 
     private void showChangePasswordModal() {
+        User user = Navigator.getCurrentUser();
+
+        if (!(user instanceof Student)) return;
+
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Change Password");
         dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.getDialogPane().setStyle("-fx-background-color: white;");
 
-        // Create form fields
-        PasswordField currentPasswordField = new PasswordField();
-        currentPasswordField.setStyle("-fx-border-color: #800000; -fx-border-radius: 5px; -fx-padding: 8;");
-        PasswordField newPasswordField = new PasswordField();
-        newPasswordField.setStyle("-fx-border-color: #800000; -fx-border-radius: 5px; -fx-padding: 8;");
-        PasswordField confirmPasswordField = new PasswordField();
-        confirmPasswordField.setStyle("-fx-border-color: #800000; -fx-border-radius: 5px; -fx-padding: 8;");
+        PasswordField newPassField = new PasswordField();
+        PasswordField confirmPassField = new PasswordField();
 
-        // Create form layout
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 35, 20, 35));
+        VBox form = new VBox(10,
+                new Label("New Password:"), newPassField,
+                new Label("Confirm Password:"), confirmPassField
+        );
+        form.setPadding(new Insets(20));
 
-        grid.add(new Label("Current Password:"), 0, 0);
-        grid.add(currentPasswordField, 1, 0);
-        grid.add(new Label("New Password:"), 0, 1);
-        grid.add(newPasswordField, 1, 1);
-        grid.add(new Label("Confirm Password:"), 0, 2);
-        grid.add(confirmPasswordField, 1, 2);
+        dialog.getDialogPane().setContent(form);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
-        dialog.getDialogPane().setContent(grid);
+        dialog.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                String newPass = newPassField.getText().trim();
+                String confirm = confirmPassField.getText().trim();
 
-        // Add buttons
-        ButtonType changeButtonType = new ButtonType("Change Password", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(changeButtonType, ButtonType.CANCEL);
-
-        // Style buttons
-        Node changeButton = dialog.getDialogPane().lookupButton(changeButtonType);
-        changeButton.setStyle("-fx-background-color: #800000; -fx-text-fill: white; -fx-font-weight: bold;");
-
-        Node cancelButton = dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
-        cancelButton.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white; -fx-font-weight: bold;");
-
-        // Process result
-        dialog.setResultConverter(buttonType -> {
-            if (buttonType == changeButtonType) {
-                // Validate fields
-                if (currentPasswordField.getText().isEmpty() ||
-                        newPasswordField.getText().isEmpty() ||
-                        confirmPasswordField.getText().isEmpty()) {
-
-                    showAlert("Error", "Please fill in all fields", Alert.AlertType.ERROR);
-                    return null;
+                if (newPass.isEmpty() || !newPass.equals(confirm)) {
+                    showAlert("Error", "Passwords do not match or are empty.", Alert.AlertType.ERROR);
+                    return;
                 }
 
-                if (!newPasswordField.getText().equals(confirmPasswordField.getText())) {
-                    showAlert("Error", "New passwords don't match", Alert.AlertType.ERROR);
-                    return null;
-                }
-
-                if (newPasswordField.getText().length() < 6) {
-                    showAlert("Error", "Password must be at least 6 characters", Alert.AlertType.ERROR);
-                    return null;
-                }
-
-                // Here you would normally verify current password and update it in your database
-                // For now we'll just show a success message
-                showAlert("Success", "Password changed successfully!", Alert.AlertType.INFORMATION);
+                new Connections().updateStudentPassword(user.getId(), newPass);
+                showAlert("Success", "Password changed successfully.", Alert.AlertType.INFORMATION);
             }
-            return null;
         });
-
-        dialog.showAndWait();
     }
 
     private void showAlert(String title, String message, Alert.AlertType type) {
@@ -333,19 +286,6 @@ public class Profile extends BorderPane {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
-
-        // Style the alert
-        alert.getDialogPane().setStyle("-fx-background-color: white;");
-
-        // Style the button
-        Button okButton = (Button) alert.getDialogPane().lookupButton(ButtonType.OK);
-        if (type == Alert.AlertType.INFORMATION) {
-            okButton.setStyle("-fx-background-color: #28a745; -fx-text-fill: white;");
-        } else if (type == Alert.AlertType.ERROR) {
-            okButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white;");
-        }
-
         alert.showAndWait();
     }
 }
-
